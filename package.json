@@ -1,0 +1,28 @@
+{
+    "name": "viam_terit",
+    "version": "1.0.0",
+    "description": "Viam Terit backend",
+    "main": "server/server.js",
+    "scripts": {
+        "test": "nodemon server/server.js -e html,css,js",
+        "start": "node server/server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/altitude-solutions/Viam_Terit_Server.git"
+    },
+    "author": "Altitude Solutions",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/altitude-solutions/Viam_Terit_Server/issues"
+    },
+    "homepage": "https://github.com/altitude-solutions/Viam_Terit_Server#readme",
+    "dependencies": {
+        "bcrypt": "^3.0.7",
+        "body-parser": "^1.19.0",
+        "express": "^4.17.1",
+        "jsonwebtoken": "^8.5.1",
+        "mongoose": "^5.8.6",
+        "underscore": "^1.9.2"
+    }
+}
