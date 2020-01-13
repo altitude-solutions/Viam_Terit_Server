@@ -21,6 +21,10 @@ let INData = new Schema({
         type: mongoose.Types.ObjectId,
         required: [true, 'Client is required']
     },
+    contact: {
+        type: mongoose.Types.ObjectId,
+        required: [true, 'Contact is required']
+    },
     via: {
         type: String,
         required: false

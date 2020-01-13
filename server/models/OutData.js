@@ -21,6 +21,10 @@ let OUTData = new Schema({
         type: mongoose.Types.ObjectId,
         required: [true, 'Client is required']
     },
+    contact: {
+        type: mongoose.Types.ObjectId,
+        required: [true, 'Contact is required']
+    },
     via: {
         type: String,
         required: false
@@ -57,5 +61,6 @@ let OUTData = new Schema({
         required: [true, 'User is required']
     }
 });
+
 
 module.exports = mongoose.model('out_data', OUTData);

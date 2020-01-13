@@ -75,8 +75,8 @@ app.get('/clients/:id', [verifyToken], (req, res) => {
 });
 
 app.get('/clients', verifyToken, (req, res) => {
-    let offset = req.query.from || 0;
-    let limit = req.query.to || 1000;
+    let offset = Number(req.query.from) || 0;
+    let limit = Number(req.query.to) || 1000;
 
     let searchParams = {};
 
