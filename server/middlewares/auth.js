@@ -9,7 +9,16 @@
  *
  **/
 
+
+// ===============================================
+// External imports
+// ===============================================
 const jwt = require('jsonwebtoken');
+
+// ===============================================
+// Databse models
+// ===============================================
+const User = require('../models/User');
 
 
 // ===============================================
@@ -24,8 +33,24 @@ let verifyToken = (req, res, next) => {
                 err
             });
         } else {
-            req.user = decoded.user;
-            next();
+            User.findById(decoded.user._id, (err, userDB) => {
+                if (err) {
+                    res.status(403).json({
+                        err
+                    });
+                } else {
+                    if (!userDB) {
+                        res.status(404).json({
+                            err: {
+                                message: 'User not found'
+                            }
+                        });
+                    } else {
+                        req.user = userDB;
+                        next();
+                    }
+                }
+            });
         }
     });
 };

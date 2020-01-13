@@ -14,6 +14,11 @@ const express = require('express');
 const app = express();
 
 app.use(require('./core/users'));
+app.use(require('./authentication/login'));
+app.use(require('./core/clients'));
+app.use(require('./core/contacts'));
+
+
 
 
 module.exports = app;

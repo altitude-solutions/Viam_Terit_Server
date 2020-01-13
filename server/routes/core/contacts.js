@@ -1,6 +1,6 @@
 /**
  *
- * @title:             Users CRUD
+ * @title:             Contacts CRUD
  *
  * @author:            Javier Contreras
  * @email:             javier.contreras@altitudesolutions.org
@@ -10,12 +10,12 @@
  **/
 
 // ===============================================
-// Dabase model
+// Database model
 // ===============================================
-const User = require('../../models/User');
+const Contact = require('../../models/Contactos');
 
 // ===============================================
-// External modules
+// External models
 // ===============================================
 const express = require('express');
 const app = express();
@@ -27,127 +27,127 @@ const bcrypt = require('bcrypt');
 // ===============================================
 
 // ===============================================
-// Middlewares
+// Moddlewares
 // ===============================================
 const { verifyToken } = require('../../middlewares/auth');
 
 
-app.post('/users', (req, res) => {
-    let body = _.pick(req.body, ['userName', 'realName', 'email', 'password', 'img']);
-    body.password = bcrypt.hashSync(body.password, 10);
-    let user = new User(body);
-    user.save({}, (err, userDb) => {
+app.post('/contacts', verifyToken, (req, res) => {
+    let body = _.pick(req.body, ['name', 'job', 'city', 'phoneNumbers', 'emailAddresses']);
+    let user = req.user;
+    let contact = new Contact(body);
+    contact.save({}, (err, contactDB) => {
         if (err) {
-            return res.status(500).json({
+            res.status(500).json({
                 err
             });
         } else {
             res.json({
-                user: userDb
+                contact: contactDB
             });
         }
     });
 });
 
-app.get('/users/:id', [verifyToken], (req, res) => {
+app.get('/contacts/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    User.findById(id, (err, user) => {
+    let user = req.user;
+    Contact.findById(id, (err, contact) => {
         if (err) {
-            return res.status(500).json({
+            res.status(500).json({
                 err
             });
         } else {
-            if (!user) {
+            if (!contact) {
                 res.status(404).json({
                     err: {
-                        message: 'User not found'
+                        message: 'Contact not found'
                     }
                 });
             } else {
                 res.json({
-                    user
+                    contact
                 });
             }
         }
     });
 });
 
-app.get('/users', [verifyToken], (req, res) => {
+app.get('/contacts', verifyToken, (req, res) => {
     let offset = req.query.from || 0;
-    let limit = req.query.to || 100;
+    let limit = req.query.to || 1000;
 
     let searchParams = {};
 
     if (req.query.status) {
-        searchParams.status = Number(req.query.status) == 0 ? false : true;
+        searchParams.status = Number(req.query.status) === 0 ? false : true;
     }
 
-    User.find(searchParams, 'userName realName email password img')
+    Contact.find(searchParams, 'name job city phoneNumbers emailAddresses')
         .skip(offset)
         .limit(limit)
-        .exec((err, users) => {
+        .exec((err, contacts) => {
             if (err) {
                 return res.status(500).json({
                     err
                 });
             } else {
                 res.json({
-                    users,
-                    count: users.length
+                    contacts,
+                    count: contacts.length
                 });
             }
         });
-
 });
 
-app.put('/users/:id', [verifyToken], (req, res) => {
+app.put('/contacts/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['userName', 'realName', 'email', 'password', 'img', 'status']);
-    if (body.password) {
-        body.password = bcrypt.hashSync(body.password, 10);
-    }
-    User.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
+    let body = req.body;
+    let user = req.user;
+    Contact.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
         if (err) {
-            return res.status(500).json({
+            res.status(500).json({
                 err
             });
         } else {
             if (!updated) {
                 res.status(404).json({
                     err: {
-                        message: 'User not found'
+                        message: 'Contact not found'
                     }
-                })
+                });
             } else {
                 res.json({
-                    user: updated
+                    contact: updated
                 });
             }
         }
     });
 });
 
-app.delete('/users/:id', [verifyToken], (req, res) => {
+app.delete('/contacts/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    User.findByIdAndUpdate(id, { status: false }, { new: true, runValidators: true }, (err, deleted) => {
+    let user = req.user;
+    Contact.findByIdAndUpdate(id, { status: false }, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
         if (err) {
-            return res.status(500).json({
+            res.status(500).json({
                 err
             });
         } else {
-            if (!deleted) {
+            if (!updated) {
                 res.status(404).json({
                     err: {
-                        message: 'User not found'
+                        message: 'Contact not found'
                     }
                 });
             } else {
                 res.json({
-                    user: deleted
+                    contact: updated
                 });
             }
         }
     });
 });
+
 
 module.exports = app;
