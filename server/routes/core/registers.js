@@ -33,10 +33,10 @@ const { verifyToken } = require('../../middlewares/auth');
 
 
 app.post('/in_data', [verifyToken], (req, res) => {
-    let body = _.pick(req.body, ['client', 'contact', 'via', 'reason', 'nights', 'coments']);
+    let body = _.pick(req.body, ['client', 'contact', 'via', 'reason', 'nights', 'comments']);
     let user = req.user;
     body.user = user._id;
-    let dataset = new INData(nody);
+    let dataset = new INData(body);
 
     dataset.save({}, (err, inDB) => {
         if (err) {
@@ -57,14 +57,14 @@ app.post('/out_data', verifyToken, (req, res) => {
     let user = req.user;
     body.user = user._id;
     let dataset = new OUTData(body);
-    dataset.save({}, (err, inDB) => {
+    dataset.save({}, (err, outDB) => {
         if (err) {
             res.status(500).json({
                 err
             });
         } else {
             res.json({
-                inData: inDB
+                inData: outDB
             });
         }
     });

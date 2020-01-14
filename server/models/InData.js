@@ -37,7 +37,7 @@ let INData = new Schema({
         type: Number,
         required: false
     },
-    coments: {
+    comments: {
         type: String,
         required: false
     },

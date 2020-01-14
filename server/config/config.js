@@ -40,6 +40,8 @@ if (process.env.NODE_ENV === 'dev') {
     urlDB = process.env.MONGOURI;
 }
 
+console.log(`Database URI = ${urlDB}`);
+
 process.env.URLDB = urlDB;
 
 mongoose.connect(process.env.URLDB, {
