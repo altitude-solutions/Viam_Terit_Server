@@ -38,6 +38,22 @@ app.post('/in_data', [verifyToken], (req, res) => {
     body.user = user._id;
     let dataset = new INData(body);
 
+    if (body.client == '') {
+        return res.status(404).json({
+            err: {
+                message: 'Seleccione un cliente por favor'
+            }
+        });
+    }
+
+    if (body.contact == '') {
+        return res.status(404).json({
+            err: {
+                message: 'Seleccione un contacto por favor'
+            }
+        });
+    }
+
     dataset.save({}, (err, inDB) => {
         if (err) {
             res.status(500).json({
@@ -57,6 +73,24 @@ app.post('/out_data', verifyToken, (req, res) => {
     let user = req.user;
     body.user = user._id;
     let dataset = new OUTData(body);
+
+    if (body.client == '') {
+        return res.status(404).json({
+            err: {
+                message: 'Seleccione un cliente por favor'
+            }
+        });
+    }
+
+    if (body.contact == '') {
+        return res.status(404).json({
+            err: {
+                message: 'Seleccione un contacto por favor'
+            }
+        });
+    }
+
+
     dataset.save({}, (err, outDB) => {
         if (err) {
             res.status(500).json({
