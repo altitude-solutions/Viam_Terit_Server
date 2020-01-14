@@ -31,6 +31,10 @@ const _ = require('underscore');
 // ===============================================
 const { verifyToken } = require('../../middlewares/auth');
 
+const errorMessages = {
+    notFound: 'El cliente no existe'
+}
+
 app.post('/clients', [verifyToken], (req, res) => {
     let body = _.pick(req.body, ['name']);
     let user = req.user;
@@ -62,7 +66,7 @@ app.get('/clients/:id', [verifyToken], (req, res) => {
                 if (!client) {
                     res.status(404).json({
                         err: {
-                            message: 'Client not found'
+                            message: errorMessages.notFound
                         }
                     });
                 } else {
@@ -114,7 +118,7 @@ app.put('/clients/:id', verifyToken, (req, res) => {
             if (!updated) {
                 res.status(404).json({
                     err: {
-                        message: 'Client not found'
+                        message: errorMessages.notFound
                     }
                 })
             } else {
@@ -138,7 +142,7 @@ app.delete('/clients/:id', verifyToken, (req, res) => {
             if (!deleted) {
                 res.status(404).json({
                     err: {
-                        message: 'Client not found'
+                        message: errorMessages.notFound
                     }
                 })
             } else {

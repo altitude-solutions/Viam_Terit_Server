@@ -40,7 +40,6 @@ if (process.env.NODE_ENV === 'dev') {
     urlDB = process.env.MONGOURI;
 }
 
-console.log(`Database URI = ${urlDB}`);
 
 process.env.URLDB = urlDB;
 
@@ -55,6 +54,6 @@ mongoose.connect(process.env.URLDB, {
             console.log('Error de conexión con la base de datos');
             throw err;
         } else {
-            console.log('Database\t\tONLINE');
+            console.log('Database\t\t\tONLINE');
         }
     });

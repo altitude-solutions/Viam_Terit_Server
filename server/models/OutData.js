@@ -19,11 +19,11 @@ let Schema = mongoose.Schema;
 let OUTData = new Schema({
     client: {
         type: mongoose.Types.ObjectId,
-        required: [true, 'Client is required']
+        required: [true, 'El cliente es necesario']
     },
     contact: {
         type: mongoose.Types.ObjectId,
-        required: [true, 'Contact is required']
+        required: [true, 'El contacto es necesario']
     },
     via: {
         type: String,
@@ -54,11 +54,16 @@ let OUTData = new Schema({
         required: false
     },
     estimateNights: {
-        type: Number
+        type: Number,
+        required: false
+    },
+    date: {
+        type: Number,
+        required: false
     },
     user: {
         type: mongoose.Types.ObjectId,
-        required: [true, 'User is required']
+        required: [true, 'El usuario es necesario']
     }
 });
 

@@ -31,9 +31,14 @@ const _ = require('underscore');
 // ===============================================
 const { verifyToken } = require('../../middlewares/auth');
 
+const errorMessages = {
+    clientNotFound: 'Seleccione un cliente por favor',
+    contactNotFound: 'Seleccione un cliente por favor'
+}
+
 
 app.post('/in_data', [verifyToken], (req, res) => {
-    let body = _.pick(req.body, ['client', 'contact', 'via', 'reason', 'nights', 'comments']);
+    let body = _.pick(req.body, ['client', 'contact', 'via', 'reason', 'nights', 'comments', 'date']);
     let user = req.user;
     body.user = user._id;
     let dataset = new INData(body);
@@ -41,7 +46,7 @@ app.post('/in_data', [verifyToken], (req, res) => {
     if (body.client == '') {
         return res.status(404).json({
             err: {
-                message: 'Seleccione un cliente por favor'
+                message: errorMessages.clientNotFound
             }
         });
     }
@@ -49,7 +54,7 @@ app.post('/in_data', [verifyToken], (req, res) => {
     if (body.contact == '') {
         return res.status(404).json({
             err: {
-                message: 'Seleccione un contacto por favor'
+                message: errorMessages.contactNotFound
             }
         });
     }
@@ -69,7 +74,7 @@ app.post('/in_data', [verifyToken], (req, res) => {
 
 
 app.post('/out_data', verifyToken, (req, res) => {
-    let body = _.pick(req.body, ['client', 'contact', 'via', 'reason', 'result', 'nights', 'comments', 'competition', 'budget', 'estimateNights']);
+    let body = _.pick(req.body, ['client', 'contact', 'via', 'reason', 'result', 'nights', 'comments', 'competition', 'budget', 'estimateNights', 'date']);
     let user = req.user;
     body.user = user._id;
     let dataset = new OUTData(body);
@@ -77,7 +82,7 @@ app.post('/out_data', verifyToken, (req, res) => {
     if (body.client == '') {
         return res.status(404).json({
             err: {
-                message: 'Seleccione un cliente por favor'
+                message: errorMessages.clientNotFound
             }
         });
     }
@@ -85,7 +90,7 @@ app.post('/out_data', verifyToken, (req, res) => {
     if (body.contact == '') {
         return res.status(404).json({
             err: {
-                message: 'Seleccione un contacto por favor'
+                message: errorMessages.contactNotFound
             }
         });
     }

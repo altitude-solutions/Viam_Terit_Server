@@ -31,6 +31,10 @@ const bcrypt = require('bcrypt');
 // ===============================================
 const { verifyToken } = require('../../middlewares/auth');
 
+const errorMessages = {
+    notFound: 'El contacto no existe'
+}
+
 
 app.post('/contacts', verifyToken, (req, res) => {
     let body = _.pick(req.body, ['name', 'job', 'city', 'phoneNumbers', 'emailAddresses']);
@@ -61,7 +65,7 @@ app.get('/contacts/:id', verifyToken, (req, res) => {
             if (!contact) {
                 res.status(404).json({
                     err: {
-                        message: 'Contact not found'
+                        message: errorMessages.notFound
                     }
                 });
             } else {
@@ -113,7 +117,7 @@ app.put('/contacts/:id', verifyToken, (req, res) => {
             if (!updated) {
                 res.status(404).json({
                     err: {
-                        message: 'Contact not found'
+                        message: errorMessages.notFound
                     }
                 });
             } else {
@@ -137,7 +141,7 @@ app.delete('/contacts/:id', verifyToken, (req, res) => {
             if (!updated) {
                 res.status(404).json({
                     err: {
-                        message: 'Contact not found'
+                        message: errorMessages.notFound
                     }
                 });
             } else {

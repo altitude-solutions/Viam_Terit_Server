@@ -19,11 +19,11 @@ let Schema = mongoose.Schema;
 let INData = new Schema({
     client: {
         type: mongoose.Types.ObjectId,
-        required: [true, 'Client is required']
+        required: [true, 'El cliente es necesario']
     },
     contact: {
         type: mongoose.Types.ObjectId,
-        required: [true, 'Contact is required']
+        required: [true, 'El contacto es necesario']
     },
     via: {
         type: String,
@@ -41,9 +41,13 @@ let INData = new Schema({
         type: String,
         required: false
     },
+    date: {
+        type: Number,
+        required: false
+    },
     user: {
         type: mongoose.Types.ObjectId,
-        required: [true, 'User is required']
+        required: [true, 'El usuario es necesario']
     }
 });
 

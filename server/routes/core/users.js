@@ -32,6 +32,11 @@ const bcrypt = require('bcrypt');
 const { verifyToken } = require('../../middlewares/auth');
 
 
+const errorMessages = {
+    notFound: 'El usuario no existe'
+}
+
+
 app.post('/users', (req, res) => {
     let body = _.pick(req.body, ['userName', 'realName', 'email', 'password', 'img']);
     body.password = bcrypt.hashSync(body.password, 10);
@@ -60,7 +65,7 @@ app.get('/users/:id', [verifyToken], (req, res) => {
             if (!user) {
                 res.status(404).json({
                     err: {
-                        message: 'User not found'
+                        message: errorMessages.notFound
                     }
                 });
             } else {
@@ -115,7 +120,7 @@ app.put('/users/:id', [verifyToken], (req, res) => {
             if (!updated) {
                 res.status(404).json({
                     err: {
-                        message: 'User not found'
+                        message: errorMessages.notFound
                     }
                 })
             } else {
@@ -138,7 +143,7 @@ app.delete('/users/:id', [verifyToken], (req, res) => {
             if (!deleted) {
                 res.status(404).json({
                     err: {
-                        message: 'User not found'
+                        message: errorMessages.notFound
                     }
                 });
             } else {
