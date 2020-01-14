@@ -54,7 +54,7 @@ let OUTData = new Schema({
         required: false
     },
     estimateNights: {
-        type: Number,
+        type: String,
         required: false
     },
     date: {
