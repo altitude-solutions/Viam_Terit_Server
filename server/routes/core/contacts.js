@@ -12,7 +12,7 @@
 // ===============================================
 // Database model
 // ===============================================
-const Contact = require('../../models/Contactos');
+const Contact = require('../../models/Contacts');
 
 // ===============================================
 // External models
@@ -37,8 +37,7 @@ const errorMessages = {
 
 
 app.post('/contacts', verifyToken, (req, res) => {
-    let body = _.pick(req.body, ['name', 'job', 'city', 'phoneNumbers', 'emailAddresses']);
-    let user = req.user;
+    let body = _.pick(req.body, ['name', 'job', 'phoneNumbers', 'emailAddresses']);
     let contact = new Contact(body);
     contact.save({}, (err, contactDB) => {
         if (err) {
@@ -55,7 +54,6 @@ app.post('/contacts', verifyToken, (req, res) => {
 
 app.get('/contacts/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let user = req.user;
     Contact.findById(id, (err, contact) => {
         if (err) {
             res.status(500).json({
@@ -87,7 +85,7 @@ app.get('/contacts', verifyToken, (req, res) => {
         searchParams.status = Number(req.query.status) === 0 ? false : true;
     }
 
-    Contact.find(searchParams, 'name job city phoneNumbers emailAddresses')
+    Contact.find(searchParams, 'name job phoneNumbers emailAddresses')
         .skip(offset)
         .limit(limit)
         .exec((err, contacts) => {
@@ -106,8 +104,8 @@ app.get('/contacts', verifyToken, (req, res) => {
 
 app.put('/contacts/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = req.body;
-    let user = req.user;
+    let body = _.pick(req.body, ['name', 'job', 'phoneNumbers', 'emailAddresses', 'status']);
+
     Contact.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
         if (err) {
             res.status(500).json({
@@ -131,7 +129,7 @@ app.put('/contacts/:id', verifyToken, (req, res) => {
 
 app.delete('/contacts/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let user = req.user;
+
     Contact.findByIdAndUpdate(id, { status: false }, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
         if (err) {
             res.status(500).json({

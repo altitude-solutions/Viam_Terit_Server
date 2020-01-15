@@ -26,10 +26,6 @@ let ContactSchema = new Schema({
         type: String,
         required: [true, 'Job position is required']
     },
-    city: {
-        type: String,
-        required: [true, 'City is required']
-    },
     phoneNumbers: {
         type: [String],
         default: []

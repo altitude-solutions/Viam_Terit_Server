@@ -52,11 +52,13 @@ app.post('/login', (req, res) => {
                         }
                     });
                 } else {
+                    // Do not write password on the token
+                    delete user.password;
                     let token = jwt.sign({
                             user
                         },
                         process.env.SEED, {
-                            expiresIn: process.env.CADUCIDAD_TOKEN
+                            //expiresIn: process.env.CADUCIDAD_TOKEN
                         });
 
                     res.json({

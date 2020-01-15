@@ -1,11 +1,11 @@
 /**
  *
- * @title:             Client model
+ * @title:             Regional client model
  *
  * @author:            Javier Contreras
  * @email:             javier.contreras@altitudesolutions.org
  *
- * @description:       Mongoose database model for Clients in MongoDB
+ * @description:       Mongoose database model for Regional clients in MongoDB
  *
  **/
 
@@ -17,14 +17,21 @@ const mongoose = require('mongoose');
 // Client mongoose Schema
 // ===============================================
 let Schema = mongoose.Schema;
-let ClientSchema = new Schema({
-    name: {
+let RegionalClientSchema = new Schema({
+    city: {
         type: String,
-        required: [true, 'Client name is required']
+        required: [true, 'La ciudad es necesaria']
     },
-    regionals: {
+    category: {
+        type: String,
+        required: [true, 'La categoria es necesaria']
+    },
+    contacts: {
         type: [mongoose.Types.ObjectId],
         default: []
+    },
+    salesAgent: {
+        type: mongoose.Types.ObjectId
     },
     status: {
         type: Boolean,
@@ -34,4 +41,4 @@ let ClientSchema = new Schema({
 });
 
 
-module.exports = mongoose.model('client', ClientSchema);
+module.exports = mongoose.model('regional_client', RegionalClientSchema);

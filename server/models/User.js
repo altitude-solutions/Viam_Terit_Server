@@ -35,10 +35,6 @@ let userScheme = new Schema({
         type: String,
         required: [true, 'Password is mandatory']
     },
-    img: {
-        type: String,
-        required: false
-    },
     status: {
         type: Boolean,
         required: false,

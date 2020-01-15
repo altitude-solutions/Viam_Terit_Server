@@ -33,7 +33,7 @@ const { verifyToken } = require('../../middlewares/auth');
 
 const errorMessages = {
     clientNotFound: 'Seleccione un cliente por favor',
-    contactNotFound: 'Seleccione un cliente por favor'
+    contactNotFound: 'Seleccione un contacto por favor'
 }
 
 
