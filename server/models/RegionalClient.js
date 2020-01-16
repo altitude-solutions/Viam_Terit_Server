@@ -24,7 +24,8 @@ let RegionalClientSchema = new Schema({
     },
     category: {
         type: String,
-        required: [true, 'La categoria es necesaria']
+        required: [true, 'La categoria es necesaria'],
+        default: 'A'
     },
     contacts: {
         type: [mongoose.Types.ObjectId],
