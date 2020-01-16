@@ -325,7 +325,7 @@ app.delete('/regional_clients/:id', verifyToken, (req, res) => {
     });
 });
 
-app.post('/app_cients', verifyToken, (req, res) => {
+app.post('/app_clients', verifyToken, (req, res) => {
     let user = req.user;
     let body = _.pick(req.body, ['contact', 'regional', 'client']);
 
