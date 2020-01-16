@@ -14,6 +14,7 @@
 // ===============================================
 const INData = require('../../models/InData');
 const OUTData = require('../../models/OutData');
+const Task = require('../../models/Tasks');
 
 // ===============================================
 // External modules
@@ -36,9 +37,13 @@ const errorMessages = {
     contactNotFound: 'Seleccione un contacto por favor'
 }
 
+// ===============================================
+// Change this array to change which cases generate a task
+// ===============================================
+const taskCases = ['Tarifario', 'Cotizacion', 'Nueva Cotizacion'];
 
 app.post('/in_data', [verifyToken], (req, res) => {
-    let body = _.pick(req.body, ['client', 'contact', 'via', 'reason', 'nights', 'comments', 'date']);
+    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'nights', 'comments', 'date']);
     let user = req.user;
     body.user = user._id;
     let dataset = new INData(body);
@@ -65,16 +70,42 @@ app.post('/in_data', [verifyToken], (req, res) => {
                 err
             });
         } else {
-            res.json({
-                inData: inDB
-            });
+            if (taskCases.includes(inDB.reason)) {
+                taskBody = {
+                    date: body.date,
+                    client: body.client,
+                    regional: body.regional,
+                    creationAgent: body.user,
+                    registerDate: body.date,
+                    todo: inDB.reason,
+                    comment: body.comments
+                }
+                let generatedTask = new Task(taskBody);
+
+                generatedTask.save((err, task) => {
+                    if (err) {
+                        return res.status(500).json({
+                            err
+                        });
+                    }
+
+                    res.json({
+                        inData: inDB,
+                        task
+                    });
+                });
+            } else {
+                res.json({
+                    inData: inDB
+                });
+            }
         }
     });
 });
 
 
 app.post('/out_data', verifyToken, (req, res) => {
-    let body = _.pick(req.body, ['client', 'contact', 'via', 'reason', 'result', 'nights', 'comments', 'competition', 'budget', 'estimateNights', 'date']);
+    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'result', 'nights', 'comments', 'competition', 'budget', 'estimateNights', 'date']);
     let user = req.user;
     body.user = user._id;
     let dataset = new OUTData(body);
@@ -95,16 +126,41 @@ app.post('/out_data', verifyToken, (req, res) => {
         });
     }
 
-
     dataset.save({}, (err, outDB) => {
         if (err) {
             res.status(500).json({
                 err
             });
         } else {
-            res.json({
-                inData: outDB
-            });
+            if (taskCases.includes(outDB.result)) {
+                taskBody = {
+                    date: body.date,
+                    client: body.client,
+                    regional: body.regional,
+                    creationAgent: body.user,
+                    registerDate: body.date,
+                    todo: outDB.result,
+                    comment: body.comments
+                }
+                let generatedTask = new Task(taskBody);
+
+                generatedTask.save((err, task) => {
+                    if (err) {
+                        return res.status(500).json({
+                            err
+                        });
+                    }
+
+                    res.json({
+                        outData: outDB,
+                        task
+                    });
+                });
+            } else {
+                res.json({
+                    outData: outDB
+                });
+            }
         }
     });
 });

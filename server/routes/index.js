@@ -18,6 +18,7 @@ app.use(require('./authentication/login'));
 app.use(require('./core/clients'));
 app.use(require('./core/contacts'));
 app.use(require('./core/registers'));
+app.use(require('./core/tasks'));
 
 
 

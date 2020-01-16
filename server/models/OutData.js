@@ -21,6 +21,10 @@ let OUTData = new Schema({
         type: mongoose.Types.ObjectId,
         required: [true, 'El cliente es necesario']
     },
+    regional: {
+        type: mongoose.Types.ObjectId,
+        required: [true, 'La regional del cliente es necesaria']
+    },
     contact: {
         type: mongoose.Types.ObjectId,
         required: [true, 'El contacto es necesario']

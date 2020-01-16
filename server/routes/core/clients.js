@@ -224,6 +224,14 @@ app.get('/regional_clients/:id', verifyToken, (req, res) => {
                 });
             }
 
+            if (!regional_client) {
+                return res.status(404).json({
+                    err: {
+                        message: errorMessages.notFound
+                    }
+                });
+            }
+
             res.json({
                 regional_client
             });
@@ -274,6 +282,14 @@ app.put('/regional_clients/:id', verifyToken, (req, res) => {
             });
         }
 
+        if (!updated) {
+            return res.status(404).json({
+                err: {
+                    message: errorMessages.notFound
+                }
+            });
+        }
+
         res.json({
             regional_client: updated
         });
@@ -290,166 +306,174 @@ app.delete('/regional_clients/:id', verifyToken, (req, res) => {
             });
         }
 
+        if (!updated) {
+            return res.status(404).json({
+                err: {
+                    message: errorMessages.notFound
+                }
+            });
+        }
+
         res.json({
             regional_client: updated
         });
     });
 });
 
-app.post('/upload/clients', verifyToken, (req, res) => {
-    // let body = req.body;
+app.post('/app_cients', verifyToken, (req, res) => {
     let user = req.user;
-    if (req.files) {
-        let extentions = ['xlsx', 'xls'];
-        let file = req.files.file;
+    let body = _.pick(req.body, ['contact', 'regional', 'client']);
 
-        let fileName = file.name.split('.');
-        let extention = fileName[fileName.length - 1];
-        if (extentions.indexOf(extention) < 0) {
-            return res.status(400).json({
-                ok: false,
-                err: {
-                    message: 'Las extensiones permitidas son: ' + extentions.join(', ') + `. La extensión encontrada es ${extention}`
-                }
+    let contact = new Contact(body.contact);
+    contact.save((err, contactDB) => {
+        if (err) {
+            return res.status(500).json({
+                err
             });
         }
+        body.regional.contacts = [contactDB._id];
+        body.regional.salesAgent = user._id;
 
-        let nameForNewFile = new Date().getTime() + `-${user._id}.${extention}`;
-        file.mv(`uploads/${nameForNewFile}`, (err) => {
+        let regional = new RegionalClient(body.regional);
+        regional.save((err, regionalDB) => {
             if (err) {
-                return res.status(500), json({
-                    err: {
-                        message: 'Error cargando la lista de clientes'
-                    }
+                return res.status(500).json({
+                    err
                 });
             }
+            body.client.regionals = [regionalDB._id];
 
-            let workbook = xlsx.readFile(`uploads/${nameForNewFile}`);
-
-            let clientsData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[workbook.SheetNames.indexOf('Clientes')]]);
-            let contactsData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[workbook.SheetNames.indexOf('Contactos')]]);
-
-            let clientCodesArray = [];
-            let contactsToBeCreatedArray = [];
-
-            clientsData.forEach(element => {
-                element.name = element['Nombre del cliente'];
-                delete element['Nombre del cliente'];
-                element.code = element['Código del cliente'];
-                delete element['Código del cliente'];
-                clientCodesArray.push(element.code);
-            });
-
-            contactsData.forEach(element => {
-                element.client = element['Cliente'];
-                delete element['Cliente'];
-                if (element['Nombre']) {
-                    element.name = element['Nombre'];
-                }
-                delete element['Nombre'];
-                if (element['Cargo']) {
-                    element.job = element['Cargo'];
-                }
-                delete element['Cargo'];
-                if (element['Cuidad']) {
-                    element.city = element['Cuidad'];
-                }
-                delete element['Cuidad'];
-
-                if (element['Teléfono']) {
-                    element.phoneNumber = element['Teléfono'].split(';');
-                } else {
-                    element.phoneNumber = [];
-                }
-                delete element['Teléfono'];
-                if (element['email']) {
-                    element.emailAddresses = element['email'].split(';');
-                } else {
-                    element.emailAddresses = [];
-                }
-                delete element['email'];
-                if (clientCodesArray.includes(element.client)) {
-                    contactsToBeCreatedArray.push(element);
-                }
-            });
-
-
-            Client.create(clientsData, (err, clients) => {
+            let client = new Client(body.client);
+            client.save((err, clientDB) => {
                 if (err) {
-                    if (err.message == 'client validation failed: code: code debe ser único') {
-                        return res.status(400).json({
-                            err: {
-                                message: 'El código debe ser único'
-                            }
-                        });
-                    } else {
-                        return res.status(500).json({
-                            err
-                        });
-                    }
+                    return res.status(500).json({
+                        err
+                    });
                 }
 
-                // let contactUpdater = {};
-
-                // contactsData.forEach(contactInfo => {
-                //     let aux = clients.find(searchResult => {
-                //         return contactInfo.client == searchResult.code;
-                //     });
-                //     if (aux) {
-                //         if (contactUpdater[aux._id]) {
-                //             contactUpdater[aux._id].push(contactInfo);
-                //         } else {
-                //             contactUpdater[aux._id] = [contactInfo];
-                //         }
-                //     } else {
-                //         console.log(contactInfo.client, 'no existe');
-                //     }
-                // });
-
-                Contact.create(contactsToBeCreatedArray, (err, contacts) => {
-                    if (err) {
-                        return res.status(500).json({
-                            err
-                        });
-                    }
-
-                    let updatedFlag = false;
-                    let clientContacts = [];
-                    clients.forEach(auxClient => {
-                        contacts.forEach(auxContact => {
-                            if (auxClient.code == auxContact.client) {
-                                clientContacts.push({
-                                    clientID: auxClient._id,
-                                    contactID: auxContact._id
-                                });
-                            }
-                        });
-                    });
-
-                    clientContacts.forEach(auxArray => {
-
-                    });
-                    Client.findByIdAndUpdate()
-
-                    //while(!updatedFlag);
-
-                    res.json({
-                        // clients,
-                        clientCount: clients.length,
-                        contactCount: contacts.length
-                    });
-
+                res.json({
+                    client: clientDB
                 });
             });
         });
-    } else {
-        res.status(400).json({
-            err: {
-                message: 'No se pudo cargar el archivo'
-            }
-        });
-    }
+    });
 });
+
+// app.post('/upload/clients', verifyToken, (req, res) => {
+//     // let body = req.body;
+//     let user = req.user;
+//     if (req.files) {
+//         let extentions = ['xlsx', 'xls'];
+//         let file = req.files.file;
+
+//         let fileName = file.name.split('.');
+//         let extention = fileName[fileName.length - 1];
+//         if (extentions.indexOf(extention) < 0) {
+//             return res.status(400).json({
+//                 ok: false,
+//                 err: {
+//                     message: 'Las extensiones permitidas son: ' + extentions.join(', ') + `. La extensión encontrada es ${extention}`
+//                 }
+//             });
+//         }
+
+//         let nameForNewFile = `${new Date().getTime()}-${user._id}.${extention}`;
+//         file.mv(`uploads/${nameForNewFile}`, (err) => {
+//             if (err) {
+//                 return res.status(500), json({
+//                     err: {
+//                         message: 'Error cargando la lista de clientes'
+//                     }
+//                 });
+//             }
+
+//             let workbook = xlsx.readFile(`uploads/${nameForNewFile}`);
+
+//             let clientsData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[workbook.SheetNames.indexOf('Clientes')]]);
+//             let regionalClientsData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[workbook.SheetNames.indexOf('Regionales')]]);
+//             let contactsData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[workbook.SheetNames.indexOf('Contactos')]]);
+
+//             clientsData.forEach(element => {
+//                 element.name = element['Nombre del cliente'];
+//                 delete element['Nombre del cliente'];
+//             });
+
+//             contactsData.forEach(element => {
+//                 if (element['Nombre']) {
+//                     element.name = element['Nombre'];
+//                 }
+//                 delete element['Nombre'];
+//                 if (element['Cargo']) {
+//                     element.job = element['Cargo'];
+//                 }
+//                 delete element['Cargo'];
+//                 if (element['Teléfono']) {
+//                     element.phoneNumber = element['Teléfono'].split(';');
+//                 } else {
+//                     element.phoneNumber = [];
+//                 }
+//                 delete element['Teléfono'];
+//                 if (element['email']) {
+//                     element.emailAddresses = element['email'].split(';');
+//                 } else {
+//                     element.emailAddresses = [];
+//                 }
+//                 delete element['email'];
+//             });
+
+//             regionalClientsData.forEach(element => {
+//                 if (element['Ciudad']) {
+//                     element.city = element['Ciudad'];
+//                 }
+//                 delete element['Ciudad'];
+//                 if (element['Categoría']) {
+//                     element.category = element['Categoría'];
+//                 }
+//                 delete element['Categoría'];
+//                 if (element['Agente de ventas']) {
+//                     element.salesAgent = element['Agente de ventas'];
+//                 }
+//                 delete element['Agente de ventas'];
+//             });
+
+//             Contact.create(contactsData, (err, contacts) => {
+//                 if (err) {
+//                     return res.status(500).json({
+//                         err
+//                     });
+//                 }
+
+//                 RegionalClient.create(regionalClientsData, (err, regional_clients) => {
+//                     if (err) {
+//                         return res.status(500).json({
+//                             err
+//                         });
+//                     }
+
+//                     Client.create(clientsData, (err, clients) => {
+//                         if (err) {
+//                             return res.status(500).json({
+//                                 err
+//                             });
+//                         }
+
+//                         res.json({
+//                             contacts_created: contacts.length,
+//                             regional_clients_created: regional_clients.length,
+//                             clients_created: clients.length
+//                         });
+//                     });
+//                 });
+//             });
+//         });
+//     } else {
+//         res.status(400).json({
+//             err: {
+//                 message: 'No se pudo cargar el archivo'
+//             }
+//         });
+//     }
+// });
 
 
 module.exports = app;
