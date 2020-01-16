@@ -194,6 +194,11 @@ app.delete('/clients/:id', verifyToken, (req, res) => {
 app.post('/regional_clients', verifyToken, (req, res) => {
     let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent']);
 
+    if (!body.salesAgent) {
+        let user = req.user;
+        body.salesAgent = user._id;
+    }
+
     let regionalClient = new RegionalClient(body);
     regionalClient.save((err, saved) => {
         if (err) {
