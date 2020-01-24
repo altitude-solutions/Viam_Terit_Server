@@ -14,6 +14,8 @@
 // Database models
 // ===============================================
 const Task = require('../../models/Tasks');
+const InData = require('../../models/InData');
+const OutData = require('../../models/OutData');
 const Client = require('../../models/Clients');
 const RegionalClient = require('../../models/RegionalClient');
 const User = require('../../models/User');
@@ -44,16 +46,16 @@ app.get('/tasks/:id', verifyToken, (req, res) => {
 
     Task.findById(id)
         .populate('client', 'name', Client)
-        .populate('regional', 'city', RegionalClient)
-        .populate('creationAgent', 'realName', User)
-        .populate('doneAgent', 'realName', User)
+        .populate('regional', 'city category salesAgent socialNetwork', RegionalClient)
+        .populate('register')
+        .populate('creationAgent', 'realName email', User)
+        .populate('doneAgent', 'realName email', User)
         .exec((err, task) => {
             if (err) {
                 return res.status(500).json({
                     err
                 });
             }
-
             if (!task) {
                 return res.status(404).json({
                     err: {
@@ -97,6 +99,7 @@ app.get('/tasks', verifyToken, (req, res) => {
         .limit(limit)
         .populate('client', 'name', Client)
         .populate('regional', 'city', RegionalClient)
+        .populate('register')
         .populate('creationAgent', 'realName', User)
         .populate('doneAgent', 'realName', User)
         .exec((err, tasks) => {
@@ -115,7 +118,7 @@ app.get('/tasks', verifyToken, (req, res) => {
 
 app.put('/tasks/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['client', 'regional', 'todo', 'creationAgent', 'registerDate', 'completed', 'deleted', 'comment', 'doneDate']);
+    let body = _.pick(req.body, ['todo', 'creationAgent', 'registerDate', 'completed', 'deleted', 'comment', 'doneDate']);
 
     if (body.completed != undefined) {
         if (body.doneDate != undefined) {

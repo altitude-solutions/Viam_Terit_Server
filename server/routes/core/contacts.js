@@ -13,6 +13,7 @@
 // Database model
 // ===============================================
 const Contact = require('../../models/Contacts');
+const RegionalClient = require('../../models/RegionalClient');
 
 // ===============================================
 // External models
@@ -20,7 +21,6 @@ const Contact = require('../../models/Contacts');
 const express = require('express');
 const app = express();
 const _ = require('underscore');
-const bcrypt = require('bcrypt');
 
 // ===============================================
 // Node modules
@@ -85,7 +85,7 @@ app.get('/contacts', verifyToken, (req, res) => {
         searchParams.status = Number(req.query.status) === 0 ? false : true;
     }
 
-    Contact.find(searchParams, 'name job phoneNumbers emailAddresses')
+    Contact.find(searchParams, 'name job phoneNumbers emailAddresses primary')
         .skip(offset)
         .limit(limit)
         .exec((err, contacts) => {
@@ -104,27 +104,52 @@ app.get('/contacts', verifyToken, (req, res) => {
 
 app.put('/contacts/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['name', 'job', 'phoneNumbers', 'emailAddresses', 'status']);
-
-    Contact.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
-        if (err) {
-            res.status(500).json({
-                err
+    if (id == 'set_as_default') {
+        let regional = req.query.regional;
+        let contact = req.query.contact;
+        if (contact == undefined || contact == '') {
+            return res.status(400).json({
+                err: {
+                    message: 'Por favor seleccione un contacto'
+                }
             });
-        } else {
-            if (!updated) {
-                res.status(404).json({
-                    err: {
-                        message: errorMessages.notFound
-                    }
+        }
+        if (regional == undefined || regional == '') {
+            return res.status(400).json({
+                err: {
+                    message: 'Por favor seleccione una regional'
+                }
+            });
+        }
+        // ===============================================
+        // TODO(set contact as default for such regional client)
+        // ===============================================
+        res.status(501).json({
+            todo: 'bien'
+        });
+    } else {
+        let body = _.pick(req.body, ['name', 'job', 'phoneNumbers', 'emailAddresses', 'status']);
+
+        Contact.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
+            if (err) {
+                res.status(500).json({
+                    err
                 });
             } else {
-                res.json({
-                    contact: updated
-                });
+                if (!updated) {
+                    res.status(404).json({
+                        err: {
+                            message: errorMessages.notFound
+                        }
+                    });
+                } else {
+                    res.json({
+                        contact: updated
+                    });
+                }
             }
-        }
-    });
+        });
+    }
 });
 
 app.delete('/contacts/:id', verifyToken, (req, res) => {

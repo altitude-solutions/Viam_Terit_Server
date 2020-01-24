@@ -62,17 +62,24 @@ app.post('/clients', [verifyToken], (req, res) => {
 app.get('/clients/:id', [verifyToken], (req, res) => {
     let id = req.params.id;
     Client.findById(id)
-        .populate('regional_clients', 'city category contacts salesAgent', RegionalClient, {
+        .populate('regionals', 'city category contacts salesAgent socialNetwork', RegionalClient, {
             status: true
         }, {
-            populate: {
+            populate: [{
                 path: 'contacts',
-                select: 'name job phoneNumbers emailAddresses',
+                select: 'name job phoneNumbers emailAddresses primary',
                 model: Contact,
                 match: {
                     status: true
                 }
-            }
+            }, {
+                path: 'salesAgent',
+                select: 'realName email',
+                model: User,
+                match: {
+                    status: true
+                }
+            }]
         })
         .exec((err, client) => {
             if (err) {
@@ -107,19 +114,19 @@ app.get('/clients', verifyToken, (req, res) => {
     Client.find(searchParams, 'name regionals')
         .skip(offset)
         .limit(limit)
-        .populate('regionals', 'city category contacts salesAgent', RegionalClient, {
+        .populate('regionals', 'city category contacts salesAgent socialNetwork', RegionalClient, {
             status: true
         }, {
             populate: [{
                 path: 'contacts',
-                select: 'name job phoneNumbers emailAddresses',
+                select: 'name job phoneNumbers emailAddresses primary',
                 model: Contact,
                 match: {
                     status: true
                 }
             }, {
                 path: 'salesAgent',
-                select: 'realName userName email',
+                select: 'realName email',
                 model: User,
                 match: {
                     status: true
@@ -190,7 +197,7 @@ app.delete('/clients/:id', verifyToken, (req, res) => {
 });
 
 app.post('/regional_clients', verifyToken, (req, res) => {
-    let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent']);
+    let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork']);
 
     if (!body.salesAgent) {
         let user = req.user;
@@ -204,7 +211,6 @@ app.post('/regional_clients', verifyToken, (req, res) => {
                 err
             });
         }
-
         res.json({
             regional_client: saved
         });
@@ -214,10 +220,10 @@ app.post('/regional_clients', verifyToken, (req, res) => {
 app.get('/regional_clients/:id', verifyToken, (req, res) => {
     let id = req.params.id;
     RegionalClient.findById(id)
-        .populate('contacts', 'name job phoneNumbers emailAddresses', Contact, {
+        .populate('contacts', 'name job phoneNumbers emailAddresses primary', Contact, {
             status: true
         })
-        .populate('salesAgent', 'realName userName email', User, {
+        .populate('salesAgent', 'realName email', User, {
             status: true
         })
         .exec((err, regional_client) => {
@@ -250,14 +256,13 @@ app.get('/regional_clients', verifyToken, (req, res) => {
         where.status = status === 0 ? false : true;
     }
 
-
     RegionalClient.find(where, 'city category contacts salesAgent')
         .skip(offset)
         .limit(limit)
-        .populate('contacts', 'name job phoneNumbers emailAddresses', Contact, {
+        .populate('contacts', 'name job phoneNumbers emailAddresses primary', Contact, {
             status: true
         })
-        .populate('salesAgent', 'realName userName email', User, {
+        .populate('salesAgent', 'realName email', User, {
             status: true
         })
         .exec((err, regional_clients) => {
@@ -276,7 +281,7 @@ app.get('/regional_clients', verifyToken, (req, res) => {
 
 app.put('/regional_clients/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'status']);
+    let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork', 'status']);
 
     RegionalClient.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
         if (err) {
@@ -323,6 +328,10 @@ app.delete('/regional_clients/:id', verifyToken, (req, res) => {
     });
 });
 
+
+// ===============================================
+// FIXME(remove this useless function)
+// ===============================================
 app.post('/app_clients', verifyToken, (req, res) => {
     let user = req.user;
     let body = _.pick(req.body, ['contact', 'regional', 'client']);
@@ -361,122 +370,6 @@ app.post('/app_clients', verifyToken, (req, res) => {
         });
     });
 });
-
-// app.post('/upload/clients', verifyToken, (req, res) => {
-//     // let body = req.body;
-//     let user = req.user;
-//     if (req.files) {
-//         let extentions = ['xlsx', 'xls'];
-//         let file = req.files.file;
-
-//         let fileName = file.name.split('.');
-//         let extention = fileName[fileName.length - 1];
-//         if (extentions.indexOf(extention) < 0) {
-//             return res.status(400).json({
-//                 ok: false,
-//                 err: {
-//                     message: 'Las extensiones permitidas son: ' + extentions.join(', ') + `. La extensión encontrada es ${extention}`
-//                 }
-//             });
-//         }
-
-//         let nameForNewFile = `${new Date().getTime()}-${user._id}.${extention}`;
-//         file.mv(`uploads/${nameForNewFile}`, (err) => {
-//             if (err) {
-//                 return res.status(500), json({
-//                     err: {
-//                         message: 'Error cargando la lista de clientes'
-//                     }
-//                 });
-//             }
-
-//             let workbook = xlsx.readFile(`uploads/${nameForNewFile}`);
-
-//             let clientsData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[workbook.SheetNames.indexOf('Clientes')]]);
-//             let regionalClientsData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[workbook.SheetNames.indexOf('Regionales')]]);
-//             let contactsData = xlsx.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[workbook.SheetNames.indexOf('Contactos')]]);
-
-//             clientsData.forEach(element => {
-//                 element.name = element['Nombre del cliente'];
-//                 delete element['Nombre del cliente'];
-//             });
-
-//             contactsData.forEach(element => {
-//                 if (element['Nombre']) {
-//                     element.name = element['Nombre'];
-//                 }
-//                 delete element['Nombre'];
-//                 if (element['Cargo']) {
-//                     element.job = element['Cargo'];
-//                 }
-//                 delete element['Cargo'];
-//                 if (element['Teléfono']) {
-//                     element.phoneNumber = element['Teléfono'].split(';');
-//                 } else {
-//                     element.phoneNumber = [];
-//                 }
-//                 delete element['Teléfono'];
-//                 if (element['email']) {
-//                     element.emailAddresses = element['email'].split(';');
-//                 } else {
-//                     element.emailAddresses = [];
-//                 }
-//                 delete element['email'];
-//             });
-
-//             regionalClientsData.forEach(element => {
-//                 if (element['Ciudad']) {
-//                     element.city = element['Ciudad'];
-//                 }
-//                 delete element['Ciudad'];
-//                 if (element['Categoría']) {
-//                     element.category = element['Categoría'];
-//                 }
-//                 delete element['Categoría'];
-//                 if (element['Agente de ventas']) {
-//                     element.salesAgent = element['Agente de ventas'];
-//                 }
-//                 delete element['Agente de ventas'];
-//             });
-
-//             Contact.create(contactsData, (err, contacts) => {
-//                 if (err) {
-//                     return res.status(500).json({
-//                         err
-//                     });
-//                 }
-
-//                 RegionalClient.create(regionalClientsData, (err, regional_clients) => {
-//                     if (err) {
-//                         return res.status(500).json({
-//                             err
-//                         });
-//                     }
-
-//                     Client.create(clientsData, (err, clients) => {
-//                         if (err) {
-//                             return res.status(500).json({
-//                                 err
-//                             });
-//                         }
-
-//                         res.json({
-//                             contacts_created: contacts.length,
-//                             regional_clients_created: regional_clients.length,
-//                             clients_created: clients.length
-//                         });
-//                     });
-//                 });
-//             });
-//         });
-//     } else {
-//         res.status(400).json({
-//             err: {
-//                 message: 'No se pudo cargar el archivo'
-//             }
-//         });
-//     }
-// });
 
 
 module.exports = app;

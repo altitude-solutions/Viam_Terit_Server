@@ -34,7 +34,8 @@ const { verifyToken } = require('../../middlewares/auth');
 
 const errorMessages = {
     clientNotFound: 'Seleccione un cliente por favor',
-    contactNotFound: 'Seleccione un contacto por favor'
+    contactNotFound: 'Seleccione un contacto por favor',
+    regionalNotFound: 'Seleccione un regional por favor'
 }
 
 // ===============================================
@@ -43,7 +44,7 @@ const errorMessages = {
 const taskCases = ['Tarifario', 'Cotizacion', 'Reserva'];
 
 app.post('/in_data', [verifyToken], (req, res) => {
-    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'nights', 'comments', 'date']);
+    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'nights', 'benefit', 'comments', 'date']);
     let user = req.user;
     body.user = user._id;
     let dataset = new INData(body);
@@ -55,7 +56,13 @@ app.post('/in_data', [verifyToken], (req, res) => {
             }
         });
     }
-
+    if (body.regional == '') {
+        return res.status(404).json({
+            err: {
+                message: errorMessages.regionalNotFound
+            }
+        });
+    }
     if (body.contact == '') {
         return res.status(404).json({
             err: {
@@ -72,12 +79,12 @@ app.post('/in_data', [verifyToken], (req, res) => {
         } else {
             if (taskCases.includes(inDB.reason)) {
                 taskBody = {
-                    date: body.date,
                     client: body.client,
                     regional: body.regional,
+                    register: inDB._id,
+                    todo: inDB.reason,
                     creationAgent: body.user,
                     registerDate: body.date,
-                    todo: inDB.reason,
                     comment: body.comments
                 }
                 let generatedTask = new Task(taskBody);
@@ -105,7 +112,7 @@ app.post('/in_data', [verifyToken], (req, res) => {
 
 
 app.post('/out_data', verifyToken, (req, res) => {
-    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'result', 'nights', 'comments', 'competition', 'budget', 'estimateNights', 'date']);
+    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'result', 'nights', 'benefit', 'comments', 'competition', 'budget', 'estimateNights', 'date']);
     let user = req.user;
     body.user = user._id;
     let dataset = new OUTData(body);
@@ -134,12 +141,12 @@ app.post('/out_data', verifyToken, (req, res) => {
         } else {
             if (taskCases.includes(outDB.result)) {
                 taskBody = {
-                    date: body.date,
                     client: body.client,
                     regional: body.regional,
+                    register: outDB._id,
+                    todo: outDB.result,
                     creationAgent: body.user,
                     registerDate: body.date,
-                    todo: outDB.result,
                     comment: body.comments
                 }
                 let generatedTask = new Task(taskBody);

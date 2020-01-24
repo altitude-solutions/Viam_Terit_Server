@@ -38,7 +38,7 @@ const errorMessages = {
 
 
 app.post('/users', (req, res) => {
-    let body = _.pick(req.body, ['userName', 'realName', 'email', 'password', 'img']);
+    let body = _.pick(req.body, ['userName', 'realName', 'email', 'password']);
     body.password = bcrypt.hashSync(body.password, 10);
     let user = new User(body);
     user.save({}, (err, userDb) => {
@@ -87,7 +87,7 @@ app.get('/users', [verifyToken], (req, res) => {
         searchParams.status = Number(req.query.status) == 0 ? false : true;
     }
 
-    User.find(searchParams, 'userName realName email password img')
+    User.find(searchParams, 'userName realName email')
         .skip(offset)
         .limit(limit)
         .exec((err, users) => {
@@ -113,7 +113,7 @@ app.get('/users', [verifyToken], (req, res) => {
 
 app.put('/users/:id', [verifyToken], (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['userName', 'realName', 'email', 'password', 'img', 'status']);
+    let body = _.pick(req.body, ['userName', 'realName', 'email', 'password', 'status']);
     if (body.password) {
         body.password = bcrypt.hashSync(body.password, 10);
     }

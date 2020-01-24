@@ -42,7 +42,7 @@ let verifyToken = (req, res, next) => {
                     if (!userDB) {
                         res.status(404).json({
                             err: {
-                                message: 'User not found'
+                                message: 'Usuario no encontrado'
                             }
                         });
                     } else {

@@ -13,15 +13,21 @@
 const express = require('express');
 const app = express();
 
+// Core apis
 app.use(require('./core/users'));
-app.use(require('./authentication/login'));
-app.use(require('./core/clients'));
 app.use(require('./core/contacts'));
-app.use(require('./core/registers'));
-app.use(require('./core/tasks'));
+app.use(require('./core/clients'));
+
+// Registers apis
+app.use(require('./registers/registers'));
+app.use(require('./registers/tasks'));
+
+// Support apis
 app.use(require('./support/benefits'));
 app.use(require('./support/cities'));
 app.use(require('./support/categories'));
 
+// authentication api
+app.use(require('./authentication/login'));
 
 module.exports = app;
