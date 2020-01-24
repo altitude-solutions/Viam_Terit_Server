@@ -76,7 +76,10 @@ app.get('/tasks', verifyToken, (req, res) => {
         let completed = Number(req.query.completed)
         where.completed = completed
     }
-
+    if (req.query.deleted) {
+        let deleted = Number(req.query.deleted)
+        where.deleted = deleted
+    }
     if (req.query.client) {
         where.client = String(req.query.client);
     }

@@ -74,7 +74,6 @@ app.get('/clients/:id', [verifyToken], (req, res) => {
                 }
             }
         })
-        //.populate('contacts', 'name job phoneNubers emailAddresses', Contact, { status: true }, )
         .exec((err, client) => {
             if (err) {
                 res.status(500).json({
@@ -108,7 +107,6 @@ app.get('/clients', verifyToken, (req, res) => {
     Client.find(searchParams, 'name regionals')
         .skip(offset)
         .limit(limit)
-        //.populate('contacts', 'code name job city phoneNumbers emailAddresses', Contact)
         .populate('regionals', 'city category contacts salesAgent', RegionalClient, {
             status: true
         }, {
