@@ -19,6 +19,8 @@ const OutData = require('../../models/OutData');
 const Client = require('../../models/Clients');
 const RegionalClient = require('../../models/RegionalClient');
 const User = require('../../models/User');
+const City = require('../../models/Cities');
+const Category = require('../../models/Categories');
 
 
 // ===============================================
@@ -47,7 +49,6 @@ app.get('/tasks/:id', verifyToken, (req, res) => {
     Task.findById(id)
         .populate('client', 'name', Client)
         .populate('regional', 'city category salesAgent socialNetwork', RegionalClient)
-        .populate('register')
         .populate('creationAgent', 'realName email', User)
         .populate('doneAgent', 'realName email', User)
         .exec((err, task) => {
@@ -63,9 +64,32 @@ app.get('/tasks/:id', verifyToken, (req, res) => {
                     }
                 });
             }
-
-            res.json({
-                task
+            InData.findById(task.register, (err, inData) => {
+                if (err) {
+                    return res.status(500).json({
+                        err
+                    });
+                }
+                if (!inData) {
+                    OutData.findById(task.register, (err, outData) => {
+                        if (err) {
+                            return res.status(500).json({
+                                err
+                            });
+                        }
+                        task = task.toJSON();
+                        task.outData = outData
+                        res.json({
+                            task
+                        });
+                    });
+                } else {
+                    task = task.toJSON();
+                    task.inData = inData;
+                    res.json({
+                        task
+                    });
+                }
             });
         });
 });
@@ -86,20 +110,31 @@ app.get('/tasks', verifyToken, (req, res) => {
         where.client = String(req.query.client);
     }
 
-    if (req.query.region) {
-        where.regional = String(req.query.region);
-    }
-
     if (req.query.agent) {
         where.creationAgent = String(req.query.agent);
+    }
+
+    let regionalFilter = {};
+    if (req.query.region) {
+        regionalFilter.city = String(req.query.region);
+    }
+    if (req.query.category) {
+        regionalFilter.category = String(req.query.category);
     }
 
     Task.find(where)
         .skip(offset)
         .limit(limit)
         .populate('client', 'name', Client)
-        .populate('regional', 'city', RegionalClient)
-        .populate('register')
+        .populate('regional', 'city category', RegionalClient, regionalFilter, {
+            populate: [{
+                path: 'city',
+                model: City
+            }, {
+                path: 'category',
+                model: Category
+            }]
+        })
         .populate('creationAgent', 'realName', User)
         .populate('doneAgent', 'realName', User)
         .exec((err, tasks) => {
@@ -108,9 +143,15 @@ app.get('/tasks', verifyToken, (req, res) => {
                     err
                 });
             }
-            res.json({
-                tasks,
-                count: tasks.length
+            // filter cities and categories
+            tasks = tasks.filter(task => {
+                return task.regional != null;
+            });
+            Task.estimatedDocumentCount((err, count) => {
+                res.json({
+                    tasks,
+                    count
+                });
             });
         });
 });
@@ -139,7 +180,6 @@ app.put('/tasks/:id', verifyToken, (req, res) => {
                 err
             });
         }
-
         if (!updated) {
             return res.status(404).json({
                 err: {
@@ -147,7 +187,6 @@ app.put('/tasks/:id', verifyToken, (req, res) => {
                 }
             })
         }
-
         res.json({
             task: updated
         });

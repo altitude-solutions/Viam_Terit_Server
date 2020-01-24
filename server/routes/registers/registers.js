@@ -110,7 +110,6 @@ app.post('/in_data', [verifyToken], (req, res) => {
     });
 });
 
-
 app.post('/out_data', verifyToken, (req, res) => {
     let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'result', 'nights', 'benefit', 'comments', 'competition', 'budget', 'estimateNights', 'date']);
     let user = req.user;

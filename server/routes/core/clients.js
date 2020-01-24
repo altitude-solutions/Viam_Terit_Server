@@ -16,6 +16,8 @@ const Client = require('../../models/Clients');
 const RegionalClient = require('../../models/RegionalClient');
 const Contact = require('../../models/Contacts');
 const User = require('../../models/User');
+const Category = require('../../models/Categories');
+const City = require('../../models/Cities');
 
 // ===============================================
 // External imports
@@ -79,6 +81,12 @@ app.get('/clients/:id', [verifyToken], (req, res) => {
                 match: {
                     status: true
                 }
+            }, {
+                path: 'category',
+                model: Category
+            }, {
+                path: 'city',
+                model: City
             }]
         })
         .exec((err, client) => {
@@ -131,6 +139,12 @@ app.get('/clients', verifyToken, (req, res) => {
                 match: {
                     status: true
                 }
+            }, {
+                path: 'category',
+                model: Category
+            }, {
+                path: 'city',
+                model: City
             }]
         })
         .exec((err, clients) => {
@@ -226,6 +240,8 @@ app.get('/regional_clients/:id', verifyToken, (req, res) => {
         .populate('salesAgent', 'realName email', User, {
             status: true
         })
+        .populate('category', 'category', Category)
+        .populate('city', 'city', City)
         .exec((err, regional_client) => {
             if (err) {
                 return res.status(500).json({
@@ -265,6 +281,8 @@ app.get('/regional_clients', verifyToken, (req, res) => {
         .populate('salesAgent', 'realName email', User, {
             status: true
         })
+        .populate('category', 'category', Category)
+        .populate('city', 'city', City)
         .exec((err, regional_clients) => {
             if (err) {
                 return res.status(500).json({
