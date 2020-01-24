@@ -1,11 +1,11 @@
 /**
  *
- * @title:             Categories model
+ * @title:             Benefits model
  *
  * @author:            Javier Contreras
  * @email:             javier.contreras@altitudesolutions.org
  *
- * @description:       Mongoose database model for Categories in MongoDB
+ * @description:       Mongoose database model for Benefits in MongoDB
  *
  **/
 
@@ -14,16 +14,16 @@ const mongoose = require('mongoose');
 
 
 // ===============================================
-// Category mongoose Schema
+// Benefit mongoose Schema
 // ===============================================
 let Schema = mongoose.Schema;
-let Categories = new Schema({
-    category: {
+let Benefits = new Schema({
+    benefit: {
         type: String,
-        required: [true, 'Category is required'],
+        required: [true, 'El Beneficio es necesario'],
         unique: true
     }
 });
 
 
-module.exports = mongoose.model('category', Categories);
+module.exports = mongoose.model('benefit', Benefits);

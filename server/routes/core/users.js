@@ -96,13 +96,19 @@ app.get('/users', [verifyToken], (req, res) => {
                     err
                 });
             } else {
-                res.json({
-                    users,
-                    count: users.length
+                User.estimatedDocumentCount({}, (err, count) => {
+                    if (err) {
+                        res.status(500).json({
+                            err
+                        });
+                    }
+                    res.json({
+                        users,
+                        count
+                    });
                 });
             }
         });
-
 });
 
 app.put('/users/:id', [verifyToken], (req, res) => {

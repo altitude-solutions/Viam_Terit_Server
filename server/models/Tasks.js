@@ -25,6 +25,10 @@ let TaskSchema = new Schema({
         type: mongoose.Types.ObjectId,
         required: [true, 'El cliente regional es necesario']
     },
+    register: {
+        type: mongoose.Types.ObjectId,
+        required: [true, 'El registro de procedencia es necesario']
+    },
     todo: {
         type: String,
         required: [true, 'El pendiente es necesario']

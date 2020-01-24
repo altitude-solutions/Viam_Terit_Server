@@ -20,11 +20,11 @@ let Schema = mongoose.Schema;
 let ContactSchema = new Schema({
     name: {
         type: String,
-        required: [true, 'Contact name is required']
+        required: [true, 'El nombre del contacto es necesario']
     },
     job: {
         type: String,
-        required: [true, 'Job position is required']
+        required: false
     },
     phoneNumbers: {
         type: [String],
@@ -33,6 +33,11 @@ let ContactSchema = new Schema({
     emailAddresses: {
         type: [String],
         default: []
+    },
+    primary: {
+        type: Boolean,
+        required: true,
+        default: false
     },
     status: {
         type: Boolean,

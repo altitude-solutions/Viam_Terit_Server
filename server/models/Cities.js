@@ -20,7 +20,8 @@ let Schema = mongoose.Schema;
 let Cities = new Schema({
     city: {
         type: String,
-        required: [true, 'City is required']
+        required: [true, 'City is required'],
+        unique: true
     }
 });
 

@@ -20,11 +20,11 @@ let Schema = mongoose.Schema;
 let userScheme = new Schema({
     realName: {
         type: String,
-        required: [true, 'Real name is required']
+        required: [true, 'El nombre real es necesario']
     },
     userName: {
         type: String,
-        required: [true, 'User name is required'],
+        required: [true, 'El nombre de usuario es necesario'],
         unique: true
     },
     email: {
@@ -33,7 +33,7 @@ let userScheme = new Schema({
     },
     password: {
         type: String,
-        required: [true, 'Password is mandatory']
+        required: [true, 'La contraseña es necesaria']
     },
     status: {
         type: Boolean,

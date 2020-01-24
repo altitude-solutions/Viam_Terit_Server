@@ -45,6 +45,10 @@ let OUTData = new Schema({
         type: Number,
         required: false
     },
+    benefit: {
+        type: mongoose.Types.ObjectId,
+        required: false
+    },
     comments: {
         type: String,
         required: false

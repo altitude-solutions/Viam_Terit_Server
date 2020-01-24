@@ -19,13 +19,12 @@ const mongoose = require('mongoose');
 let Schema = mongoose.Schema;
 let RegionalClientSchema = new Schema({
     city: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: [true, 'La ciudad es necesaria']
     },
     category: {
-        type: String,
-        required: [true, 'La categoria es necesaria'],
-        default: 'A'
+        type: mongoose.Types.ObjectId,
+        required: false
     },
     contacts: {
         type: [mongoose.Types.ObjectId],
@@ -33,6 +32,9 @@ let RegionalClientSchema = new Schema({
     },
     salesAgent: {
         type: mongoose.Types.ObjectId
+    },
+    socialNetwork: {
+        type: String
     },
     status: {
         type: Boolean,
