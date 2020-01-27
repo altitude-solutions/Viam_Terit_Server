@@ -95,8 +95,8 @@ app.get('/tasks/:id', verifyToken, (req, res) => {
 });
 
 app.get('/tasks', verifyToken, (req, res) => {
-    let offset = req.query.from || 0;
-    let limit = req.query.to || 1000;
+    let offset = Number(req.query.from) || 0;
+    let limit = Number(req.query.to) || 1000;
     let where = {};
     if (req.query.completed) {
         let completed = Number(req.query.completed)
@@ -156,11 +156,9 @@ app.get('/tasks', verifyToken, (req, res) => {
         });
 });
 
-
 app.put('/tasks/:id', verifyToken, (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['todo', 'creationAgent', 'registerDate', 'completed', 'deleted', 'comment', 'doneDate']);
-
     if (body.completed != undefined) {
         if (body.doneDate != undefined) {
             let user = req.user;
@@ -173,7 +171,6 @@ app.put('/tasks/:id', verifyToken, (req, res) => {
             });
         }
     }
-
     Task.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
         if (err) {
             return res.status(500).json({
@@ -196,14 +193,12 @@ app.put('/tasks/:id', verifyToken, (req, res) => {
 
 app.delete('/tasks/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-
     Task.findByIdAndUpdate(id, { deleted: true }, { new: true, runValidators: true, context: 'query' }, (err, deleted) => {
         if (err) {
             return res.status(500).json({
                 err
             });
         }
-
         if (!deleted) {
             return res.status(404).json({
                 err: {
@@ -211,7 +206,6 @@ app.delete('/tasks/:id', verifyToken, (req, res) => {
                 }
             })
         }
-
         res.json({
             task: deleted
         });

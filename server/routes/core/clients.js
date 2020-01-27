@@ -300,7 +300,6 @@ app.get('/regional_clients', verifyToken, (req, res) => {
 app.put('/regional_clients/:id', verifyToken, (req, res) => {
     let id = req.params.id;
     let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork', 'status']);
-
     RegionalClient.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
         if (err) {
             return res.status(500).json({
