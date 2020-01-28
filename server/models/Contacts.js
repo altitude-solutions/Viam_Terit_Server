@@ -37,7 +37,7 @@ let ContactSchema = new Schema({
     primary: {
         type: Boolean,
         required: true,
-        default: false
+        default: true
     },
     status: {
         type: Boolean,

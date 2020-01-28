@@ -119,6 +119,11 @@ app.get('/clients', verifyToken, (req, res) => {
     if (req.query.status) {
         searchParams.status = Number(req.query.status) === 0 ? false : true;
     }
+    // Regular expression query to look for clients by name
+    if (req.query.q) {
+        searchParams.name = RegExp(req.query.q, 'iu');
+    }
+
     Client.find(searchParams, 'name regionals')
         .skip(offset)
         .limit(limit)
@@ -163,27 +168,65 @@ app.get('/clients', verifyToken, (req, res) => {
 
 app.put('/clients/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['name', 'status', 'regionals']);
-    let user = req.user;
-    Client.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
-        if (err) {
-            res.json(500).json({
-                err
+    if (id == "append_regional") {
+        let regional = req.query.regional;
+        let client = req.query.client;
+        if (regional == undefined || regional == '') {
+            return res.status(400).json({
+                err: {
+                    message: 'Por favor seleccione una regional'
+                }
             });
-        } else {
-            if (!updated) {
-                res.status(404).json({
-                    err: {
-                        message: errorMessages.notFound
-                    }
+        }
+        if (client == undefined || client == '') {
+            return res.status(400).json({
+                err: {
+                    message: 'Por favor seleccione un cliente'
+                }
+            });
+        }
+        Client.findById(client, (err, clientFound) => {
+            if (err) {
+                res.status(500).json({
+                    err
                 });
-            } else {
+            }
+            let regionals = clientFound.toJSON().regionals;
+            regionals.push(regional);
+            Client.findByIdAndUpdate(client, { regionals }, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
+                if (err) {
+                    return res.status(500).json({
+                        err
+                    });
+                }
                 res.json({
                     client: updated
                 });
+            });
+        });
+    } else {
+        let body = _.pick(req.body, ['name', 'status', 'regionals']);
+        let user = req.user;
+        Client.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
+            if (err) {
+                res.json(500).json({
+                    err
+                });
+            } else {
+                if (!updated) {
+                    res.status(404).json({
+                        err: {
+                            message: errorMessages.notFound
+                        }
+                    });
+                } else {
+                    res.json({
+                        client: updated
+                    });
+                }
             }
-        }
-    });
+        });
+    }
 });
 
 app.delete('/clients/:id', verifyToken, (req, res) => {
@@ -299,26 +342,64 @@ app.get('/regional_clients', verifyToken, (req, res) => {
 
 app.put('/regional_clients/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork', 'status']);
-    RegionalClient.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
-        if (err) {
-            return res.status(500).json({
-                err
-            });
-        }
-
-        if (!updated) {
-            return res.status(404).json({
+    if (id == "append_contact") {
+        let contact = req.query.contact;
+        let regional = req.query.regional;
+        if (contact == undefined || contact == '') {
+            return res.status(400).json({
                 err: {
-                    message: errorMessages.notFound
+                    message: 'Por favor seleccione un contacto'
                 }
             });
         }
-
-        res.json({
-            regional_client: updated
+        if (regional == undefined || regional == '') {
+            return res.status(400).json({
+                err: {
+                    message: 'Por favor seleccione una regional'
+                }
+            });
+        }
+        RegionalClient.findById(regional, (err, regionalFound) => {
+            if (err) {
+                return res.status(500).json({
+                    err
+                });
+            }
+            let contacts = regionalFound.toJSON().contacts;
+            contacts.push(contact);
+            RegionalClient.findByIdAndUpdate(regional, { contacts }, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
+                if (err) {
+                    return res.status(500).json({
+                        err
+                    });
+                }
+                res.json({
+                    regional_client: updated
+                });
+            });
         });
-    });
+    } else {
+        let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork', 'status']);
+        RegionalClient.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
+            if (err) {
+                return res.status(500).json({
+                    err
+                });
+            }
+
+            if (!updated) {
+                return res.status(404).json({
+                    err: {
+                        message: errorMessages.notFound
+                    }
+                });
+            }
+
+            res.json({
+                regional_client: updated
+            });
+        });
+    }
 });
 
 app.delete('/regional_clients/:id', verifyToken, (req, res) => {

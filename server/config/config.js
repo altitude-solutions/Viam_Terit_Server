@@ -35,7 +35,7 @@ const mongoose = require('mongoose');
 let urlDB;
 
 if (process.env.NODE_ENV === 'dev') {
-    urlDB = 'mongodb://127.0.0.1:27017/camino_real';
+    urlDB = 'mongodb://127.0.0.1:27017';
 } else {
     urlDB = process.env.MONGOURI;
 }
@@ -47,7 +47,8 @@ mongoose.connect(process.env.URLDB, {
         useFindAndModify: false,
         useNewUrlParser: true,
         useCreateIndex: true,
-        useUnifiedTopology: true
+        useUnifiedTopology: true,
+        dbName: 'camino_real'
     },
     (err) => {
         if (err) {
