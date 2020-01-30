@@ -37,21 +37,27 @@ const { verifyToken } = require('../../middlewares/auth');
 app.post('/update_delivery', verifyToken, (req, res) => {
     let savePath = path.resolve(__dirname, '../../../uploads');
 
+    if (!req.files) {
+        return res.status(400).json({
+            err: {
+                message: 'Por favor seleccione un archivo'
+            }
+        });
+    }
+    let package = req.files.package;
+
     // Evaluate extentions
     let extentions = ['zip'];
-    let package = req.files.package;
     let fileName = package.name.split('.');
     let extention = fileName[fileName.length - 1];
     if (!extentions.includes(extention)) {
         return res.status(400).json({
-            ok: false,
             err: {
                 message: 'La extension permitida es: ' + extentions.join(', '),
                 ext: extention
             }
         });
     }
-
 
     package.mv(path.resolve(savePath, package.name), err => {
         if (err) {
