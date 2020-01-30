@@ -30,4 +30,7 @@ app.use(require('./support/categories'));
 // authentication api
 app.use(require('./authentication/login'));
 
+// Update delivery service
+app.use(require('./app/deliverUpdates'));
+
 module.exports = app;

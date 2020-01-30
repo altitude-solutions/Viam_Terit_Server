@@ -25,20 +25,11 @@ const City = require('../../models/Cities');
 const express = require('express');
 const app = express();
 const _ = require('underscore');
-const xlsx = require('xlsx');
-const fileUpload = require('express-fileupload');
-
-// ===============================================
-// Node modules
-// ===============================================
-const path = require('path');
-const fs = require('fs');
 
 // ===============================================
 // Middlewares
 // ===============================================
 const { verifyToken } = require('../../middlewares/auth');
-app.use(fileUpload());
 
 
 const errorMessages = {
@@ -425,49 +416,5 @@ app.delete('/regional_clients/:id', verifyToken, (req, res) => {
         });
     });
 });
-
-
-// ===============================================
-// FIXME(remove this useless function)
-// ===============================================
-app.post('/app_clients', verifyToken, (req, res) => {
-    let user = req.user;
-    let body = _.pick(req.body, ['contact', 'regional', 'client']);
-
-    let contact = new Contact(body.contact);
-    contact.save((err, contactDB) => {
-        if (err) {
-            return res.status(500).json({
-                err
-            });
-        }
-        body.regional.contacts = [contactDB._id];
-        body.regional.salesAgent = user._id;
-
-        let regional = new RegionalClient(body.regional);
-        regional.save((err, regionalDB) => {
-            if (err) {
-                return res.status(500).json({
-                    err
-                });
-            }
-            body.client.regionals = [regionalDB._id];
-
-            let client = new Client(body.client);
-            client.save((err, clientDB) => {
-                if (err) {
-                    return res.status(500).json({
-                        err
-                    });
-                }
-
-                res.json({
-                    client: clientDB
-                });
-            });
-        });
-    });
-});
-
 
 module.exports = app;

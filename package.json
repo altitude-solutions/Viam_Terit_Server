@@ -26,6 +26,7 @@
         "mongoose": "^5.8.6",
         "mongoose-unique-validator": "^2.0.3",
         "underscore": "^1.9.2",
+        "unzipper": "^0.10.7",
         "xlsx": "^0.15.4"
     }
 }
