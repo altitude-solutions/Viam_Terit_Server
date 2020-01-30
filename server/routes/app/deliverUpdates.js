@@ -30,13 +30,11 @@ const path = require('path');
 // ===============================================
 const { verifyToken } = require('../../middlewares/auth');
 
-
 // ===============================================
 // Upload
 // ===============================================
 app.post('/update_delivery', verifyToken, (req, res) => {
     let savePath = path.resolve(__dirname, '../../../uploads');
-
     if (!req.files) {
         return res.status(400).json({
             err: {
@@ -45,7 +43,6 @@ app.post('/update_delivery', verifyToken, (req, res) => {
         });
     }
     let package = req.files.package;
-
     // Evaluate extentions
     let extentions = ['zip'];
     let fileName = package.name.split('.');
@@ -58,7 +55,6 @@ app.post('/update_delivery', verifyToken, (req, res) => {
             }
         });
     }
-
     package.mv(path.resolve(savePath, package.name), err => {
         if (err) {
             return res.status(500).json({
@@ -119,7 +115,6 @@ app.post('/update_delivery', verifyToken, (req, res) => {
             });
         }
     });
-
 });
 
 module.exports = app;
