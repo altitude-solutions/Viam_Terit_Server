@@ -196,7 +196,7 @@ app.put('/clients/:id', verifyToken, (req, res) => {
             });
         });
     } else {
-        let body = _.pick(req.body, ['name', 'status', 'regionals', 'anniversary']);
+        let body = _.pick(req.body, ['name', 'status', 'regionals']);
         let user = req.user;
         Client.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
             if (err) {
@@ -370,7 +370,7 @@ app.put('/regional_clients/:id', verifyToken, (req, res) => {
             });
         });
     } else {
-        let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork', 'status']);
+        let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork', 'status', 'anniversary']);
         RegionalClient.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
             if (err) {
                 return res.status(500).json({

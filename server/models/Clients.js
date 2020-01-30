@@ -26,10 +26,6 @@ let ClientSchema = new Schema({
         type: [mongoose.Types.ObjectId],
         default: []
     },
-    anniversary: {
-        type: Number,
-        required: false
-    },
     status: {
         type: Boolean,
         required: true,

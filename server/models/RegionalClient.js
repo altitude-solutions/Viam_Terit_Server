@@ -36,6 +36,9 @@ let RegionalClientSchema = new Schema({
     socialNetwork: {
         type: String
     },
+    anniversary: {
+        type: Number
+    },
     status: {
         type: Boolean,
         required: true,
