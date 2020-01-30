@@ -65,7 +65,6 @@ app.post('/update_delivery', verifyToken, (req, res) => {
                 err
             });
         }
-
         if (req.query.arch) {
             let arch = req.query.arch;
             if (arch == 'amd64') {
@@ -103,9 +102,10 @@ app.post('/update_delivery', verifyToken, (req, res) => {
                             });
                         });
                 } else {
+                    fs.unlink(path.resolve(savePath, package.name), (err) => {});
                     return res.status(400).json({
                         err: {
-                            message: `Las arquitecturas permitidas son ` + 'amd64, i386',
+                            message: 'Las arquitecturas permitidas son: amd64, i386',
                             arch
                         }
                     });
@@ -114,7 +114,7 @@ app.post('/update_delivery', verifyToken, (req, res) => {
         } else {
             return res.status(400).json({
                 err: {
-                    message: `Las arquitecturas permitidas son ` + 'amd64, i386'
+                    message: 'Las arquitecturas permitidas son: amd64, i386'
                 }
             });
         }
