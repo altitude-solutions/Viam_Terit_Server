@@ -81,7 +81,7 @@ app.post('/in_data', [verifyToken], (req, res) => {
                 taskBody = {
                     client: body.client,
                     regional: body.regional,
-                    register: inDB._id,
+                    inData: inDB._id,
                     todo: inDB.reason,
                     creationAgent: body.user,
                     registerDate: body.date,
@@ -142,7 +142,7 @@ app.post('/out_data', verifyToken, (req, res) => {
                 taskBody = {
                     client: body.client,
                     regional: body.regional,
-                    register: outDB._id,
+                    outData: outDB._id,
                     todo: outDB.result,
                     creationAgent: body.user,
                     registerDate: body.date,

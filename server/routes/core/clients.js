@@ -205,7 +205,7 @@ app.put('/clients/:id', verifyToken, (req, res) => {
             });
         });
     } else {
-        let body = _.pick(req.body, ['name', 'status', 'regionals']);
+        let body = _.pick(req.body, ['name', 'status', 'regionals', 'anniversary']);
         let user = req.user;
         Client.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
             if (err) {

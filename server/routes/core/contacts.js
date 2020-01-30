@@ -121,14 +121,61 @@ app.put('/contacts/:id', verifyToken, (req, res) => {
                 }
             });
         }
-        // ===============================================
-        // TODO(set contact as default for such regional client)
-        // ===============================================
-        res.status(501).json({
-            todo: 'bien'
+        RegionalClient.findById(regional, (err, regionalAppend) => {
+            if (err) {
+                return res.status(500).json({
+                    err
+                });
+            }
+            if (!regionalAppend) {
+                return res.status(404).json({
+                    err: {
+                        message: 'Por favor seleccione una regional válida'
+                    }
+                });
+            }
+            let contacts = regionalAppend.contacts;
+            if (contacts.includes(contact)) {
+                Contact.updateMany({
+                    _id: {
+                        $in: contacts
+                    }
+                }, {
+                    primary: false
+                }, (err, allFalse) => {
+                    if (err) {
+                        return res.status(500).json({
+                            err
+                        });
+                    }
+                });
+                Contact.findByIdAndUpdate(contact, { primary: true }, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
+                    if (err) {
+                        return res.status(500).json({
+                            err
+                        });
+                    }
+                    if (!updated) {
+                        return res.status(404).json({
+                            err: {
+                                message: 'Contacto no encontrado'
+                            }
+                        });
+                    }
+                    res.json({
+                        contact: updated
+                    });
+                });
+            } else {
+                return res.status(400).json({
+                    err: {
+                        message: 'El contacto seleccionado no pertenece a la regional seleccionada'
+                    }
+                });
+            }
         });
     } else {
-        let body = _.pick(req.body, ['name', 'job', 'phoneNumbers', 'emailAddresses', 'status']);
+        let body = _.pick(req.body, ['name', 'job', 'phoneNumbers', 'emailAddresses', 'status', 'birthday']);
 
         Contact.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
             if (err) {

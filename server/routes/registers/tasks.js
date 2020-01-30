@@ -21,6 +21,7 @@ const RegionalClient = require('../../models/RegionalClient');
 const User = require('../../models/User');
 const City = require('../../models/Cities');
 const Category = require('../../models/Categories');
+const Benefit = require('../../models/Benefits');
 
 
 // ===============================================
@@ -51,6 +52,18 @@ app.get('/tasks/:id', verifyToken, (req, res) => {
         .populate('regional', 'city category salesAgent socialNetwork', RegionalClient)
         .populate('creationAgent', 'realName email', User)
         .populate('doneAgent', 'realName email', User)
+        .populate('inData', 'via reason nights benefit comments date', InData, {}, {
+            populate: [{
+                path: 'benefit',
+                model: Benefit
+            }]
+        })
+        .populate('outData', 'via reason result nights benefit comments competition budget estimateNights date', OutData, {}, {
+            populate: [{
+                path: 'benefit',
+                model: Benefit
+            }]
+        })
         .exec((err, task) => {
             if (err) {
                 return res.status(500).json({
@@ -64,32 +77,8 @@ app.get('/tasks/:id', verifyToken, (req, res) => {
                     }
                 });
             }
-            InData.findById(task.register, (err, inData) => {
-                if (err) {
-                    return res.status(500).json({
-                        err
-                    });
-                }
-                if (!inData) {
-                    OutData.findById(task.register, (err, outData) => {
-                        if (err) {
-                            return res.status(500).json({
-                                err
-                            });
-                        }
-                        task = task.toJSON();
-                        task.outData = outData
-                        res.json({
-                            task
-                        });
-                    });
-                } else {
-                    task = task.toJSON();
-                    task.inData = inData;
-                    res.json({
-                        task
-                    });
-                }
+            res.json({
+                task
             });
         });
 });
@@ -137,6 +126,18 @@ app.get('/tasks', verifyToken, (req, res) => {
         })
         .populate('creationAgent', 'realName', User)
         .populate('doneAgent', 'realName', User)
+        .populate('inData', 'via reason nights benefit comments date', InData, {}, {
+            populate: [{
+                path: 'benefit',
+                model: Benefit
+            }]
+        })
+        .populate('outData', 'via reason result nights benefit comments competition budget estimateNights date', OutData, {}, {
+            populate: [{
+                path: 'benefit',
+                model: Benefit
+            }]
+        })
         .exec((err, tasks) => {
             if (err) {
                 return res.status(500).json({
