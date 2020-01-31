@@ -37,7 +37,7 @@ const errorMessages = {
 
 
 app.post('/contacts', verifyToken, (req, res) => {
-    let body = _.pick(req.body, ['name', 'job', 'phoneNumbers', 'emailAddresses']);
+    let body = _.pick(req.body, ['name', 'job', 'phoneNumbers', 'emailAddresses', 'birthday']);
     let contact = new Contact(body);
     contact.save({}, (err, contactDB) => {
         if (err) {

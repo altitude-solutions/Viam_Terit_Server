@@ -118,7 +118,7 @@ app.get('/clients', verifyToken, (req, res) => {
     Client.find(searchParams, 'name regionals')
         .skip(offset)
         .limit(limit)
-        .populate('regionals', 'city category contacts salesAgent socialNetwork', RegionalClient, {
+        .populate('regionals', 'city category contacts salesAgent socialNetwork anniversary', RegionalClient, {
             status: true
         }, {
             populate: [{
@@ -180,6 +180,13 @@ app.put('/clients/:id', verifyToken, (req, res) => {
             if (err) {
                 res.status(500).json({
                     err
+                });
+            }
+            if (!clientFound) {
+                return res.status(404).json({
+                    err: {
+                        message: errorMessages.notFound
+                    }
                 });
             }
             let regionals = clientFound.toJSON().regionals;
@@ -245,7 +252,7 @@ app.delete('/clients/:id', verifyToken, (req, res) => {
 });
 
 app.post('/regional_clients', verifyToken, (req, res) => {
-    let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork']);
+    let body = _.pick(req.body, ['city', 'category', 'contacts', 'salesAgent', 'socialNetwork', 'anniversary']);
 
     if (!body.salesAgent) {
         let user = req.user;
@@ -259,8 +266,29 @@ app.post('/regional_clients', verifyToken, (req, res) => {
                 err
             });
         }
-        res.json({
-            regional_client: saved
+        let naContact = new Contact({
+            name: "N/A",
+            primary: true
+        });
+
+        naContact.save((err, appendContact) => {
+            if (err) {
+                return res.status(500).json({
+                    err
+                });
+            }
+            RegionalClient.findByIdAndUpdate(saved._id, {
+                contacts: [appendContact._id]
+            }, (err, newRegional) => {
+                if (err) {
+                    return res.status(500).json({
+                        err
+                    });
+                }
+                res.json({
+                    regional_client: newRegional
+                });
+            });
         });
     });
 });
@@ -306,7 +334,7 @@ app.get('/regional_clients', verifyToken, (req, res) => {
         where.status = status === 0 ? false : true;
     }
 
-    RegionalClient.find(where, 'city category contacts salesAgent')
+    RegionalClient.find(where, 'city category contacts salesAgent anniversary')
         .skip(offset)
         .limit(limit)
         .populate('contacts', 'name job phoneNumbers emailAddresses primary', Contact, {

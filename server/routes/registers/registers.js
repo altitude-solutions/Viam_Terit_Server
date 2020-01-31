@@ -171,4 +171,34 @@ app.post('/out_data', verifyToken, (req, res) => {
     });
 });
 
+
+app.get('/not_tasks', verifyToken, (req, res) => {
+    INData.find({
+        reason: {
+            $nin: taskCases
+        }
+    }, (err, indatas) => {
+        if (err) {
+            return res.status(500).json({
+                err
+            });
+        }
+        OUTData.find({
+            result: {
+                $nin: taskCases
+            }
+        }, (err, outdatas) => {
+            if (err) {
+                return res.status(500).json({
+                    err
+                });
+            }
+            res.json({
+                outdatas,
+                indatas
+            });
+        });
+    });
+});
+
 module.exports = app;
