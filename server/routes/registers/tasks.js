@@ -22,6 +22,7 @@ const User = require('../../models/User');
 const City = require('../../models/Cities');
 const Category = require('../../models/Categories');
 const Benefit = require('../../models/Benefits');
+const GivenBenefit = require('../../models/GivenBenefits');
 
 
 // ===============================================
@@ -52,16 +53,24 @@ app.get('/tasks/:id', verifyToken, (req, res) => {
         .populate('regional', 'city category salesAgent socialNetwork', RegionalClient)
         .populate('creationAgent', 'realName email', User)
         .populate('doneAgent', 'realName email', User)
-        .populate('inData', 'via reason nights benefit comments date', InData, {}, {
+        .populate('inData', 'via reason nights givenBenefits comments date', InData, {}, {
             populate: [{
-                path: 'benefit',
-                model: Benefit
+                path: 'givenBenefits',
+                model: GivenBenefit,
+                populate: [{
+                    path: 'benefit',
+                    model: Benefit
+                }]
             }]
         })
         .populate('outData', 'via reason result nights benefit comments competition budget estimateNights date', OutData, {}, {
             populate: [{
-                path: 'benefit',
-                model: Benefit
+                path: 'givenBenefits',
+                model: GivenBenefit,
+                populate: [{
+                    path: 'benefit',
+                    model: Benefit
+                }]
             }]
         })
         .exec((err, task) => {
@@ -103,6 +112,11 @@ app.get('/tasks', verifyToken, (req, res) => {
         where.creationAgent = String(req.query.agent);
     }
 
+    // Reserva filtering to fetch all tasks that containg givenBenefits
+    if (req.query.todo) {
+        where.todo = String(req.query.todo);
+    }
+
     let regionalFilter = {};
     if (req.query.region) {
         regionalFilter.city = String(req.query.region);
@@ -114,6 +128,9 @@ app.get('/tasks', verifyToken, (req, res) => {
     Task.find(where)
         .skip(offset)
         .limit(limit)
+        .sort([
+            ['registerDate', -1]
+        ])
         .populate('client', 'name', Client)
         .populate('regional', 'city category', RegionalClient, regionalFilter, {
             populate: [{
@@ -126,16 +143,24 @@ app.get('/tasks', verifyToken, (req, res) => {
         })
         .populate('creationAgent', 'realName', User)
         .populate('doneAgent', 'realName', User)
-        .populate('inData', 'via reason nights benefit comments date', InData, {}, {
+        .populate('inData', 'via reason nights givenBenefits comments date', InData, {}, {
             populate: [{
-                path: 'benefit',
-                model: Benefit
+                path: 'givenBenefits',
+                model: GivenBenefit,
+                populate: [{
+                    path: 'benefit',
+                    model: Benefit
+                }]
             }]
         })
         .populate('outData', 'via reason result nights benefit comments competition budget estimateNights date', OutData, {}, {
             populate: [{
-                path: 'benefit',
-                model: Benefit
+                path: 'givenBenefits',
+                model: GivenBenefit,
+                populate: [{
+                    path: 'benefit',
+                    model: Benefit
+                }]
             }]
         })
         .exec((err, tasks) => {

@@ -41,16 +41,16 @@ let INData = new Schema({
         type: Number,
         required: false
     },
-    benefit: {
-        type: mongoose.Types.ObjectId,
-        required: false
-    },
     comments: {
         type: String,
         required: false
     },
     date: {
         type: Number,
+        required: false
+    },
+    givenBenefits: {
+        type: [mongoose.Types.ObjectId],
         required: false
     },
     user: {
