@@ -143,26 +143,8 @@ app.get('/tasks', verifyToken, (req, res) => {
         })
         .populate('creationAgent', 'realName', User)
         .populate('doneAgent', 'realName', User)
-        .populate('inData', 'via reason nights givenBenefits comments date', InData, {}, {
-            populate: [{
-                path: 'givenBenefits',
-                model: GivenBenefit,
-                populate: [{
-                    path: 'benefit',
-                    model: Benefit
-                }]
-            }]
-        })
-        .populate('outData', 'via reason result nights benefit comments competition budget estimateNights date', OutData, {}, {
-            populate: [{
-                path: 'givenBenefits',
-                model: GivenBenefit,
-                populate: [{
-                    path: 'benefit',
-                    model: Benefit
-                }]
-            }]
-        })
+        .populate('inData', 'via reason nights comments date earlyCheckIn lateCheckOut upgrade noShow', InData)
+        .populate('outData', 'via reason result nights comments competition budget estimateNights date earlyCheckIn lateCheckOut upgrade noShow', OutData)
         .exec((err, tasks) => {
             if (err) {
                 return res.status(500).json({
@@ -184,7 +166,7 @@ app.get('/tasks', verifyToken, (req, res) => {
 
 app.put('/tasks/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['todo', 'creationAgent', 'registerDate', 'completed', 'deleted', 'comment', 'doneDate']);
+    let body = _.pick(req.body, ['todo', 'creationAgent', 'registerDate', 'completed', 'deleted', 'comment', 'doneDate', 'earlyCheckIn', 'lateCheckOut', 'upgrade', 'noShow']);
     if (body.completed != undefined) {
         if (body.doneDate != undefined) {
             let user = req.user;
@@ -197,6 +179,22 @@ app.put('/tasks/:id', verifyToken, (req, res) => {
             });
         }
     }
+    let benefitsUpdate = {};
+
+    if (body.earlyCheckIn && body.lateCheckOut && body.upgrade && body.noShow) {
+        benefitsUpdate = {
+            earlyCheckIn: body.earlyCheckIn,
+            lateCheckOut: body.lateCheckOut,
+            upgrade: body.upgrade,
+            noShow: body.noShow
+        };
+
+        delete body.earlyCheckIn;
+        delete body.lateCheckOut;
+        delete body.upgrade;
+        delete body.noShow;
+    }
+
     Task.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
         if (err) {
             return res.status(500).json({
@@ -210,9 +208,40 @@ app.put('/tasks/:id', verifyToken, (req, res) => {
                 }
             })
         }
-        res.json({
-            task: updated
-        });
+        if (benefitsUpdate == {}) {
+            res.json({
+                task: updated
+            });
+        } else {
+            let aux = updated.toJSON();
+            if (aux.outData) {
+                // Comes from an out data
+                OutData.findByIdAndUpdate(aux.outData, benefitsUpdate, { new: true, runValidators: true, context: 'query' }, (err, outDataToBeUpdated) => {
+                    if (err) {
+                        return res.status(500).json({
+                            err
+                        });
+                    }
+                    res.json({
+                        task: updated,
+                        outData: outDataToBeUpdated
+                    });
+                });
+            } else {
+                // Comes from an in data
+                InData.findByIdAndUpdate(aux.inData, benefitsUpdate, { new: true, runValidators: true, context: 'query' }, (err, inDataToBeUpdated) => {
+                    if (err) {
+                        return res.status(500).json({
+                            err
+                        });
+                    }
+                    res.json({
+                        task: updated,
+                        inData: inDataToBeUpdated
+                    });
+                });
+            }
+        }
     });
 });
 

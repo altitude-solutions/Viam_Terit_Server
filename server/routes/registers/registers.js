@@ -51,15 +51,15 @@ const errorMessages = {
 const taskCases = ['Tarifario', 'Cotizacion', 'Reserva'];
 
 app.post('/in_data', [verifyToken], (req, res) => {
-    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'nights', 'comments', 'date', 'givenBenefits']);
+    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'nights', 'restaurant', 'events', 'other', 'comments', 'date', 'earlyCheckIn', 'lateCheckOut', 'upgrade', 'noShow']);
     let user = req.user;
     body.user = user._id;
 
-    let benefitsToBeGiven = [];
-    if (body.givenBenefits) {
-        benefitsToBeGiven = body.givenBenefits;
-        delete body.givenBenefits;
-    }
+    // let benefitsToBeGiven = [];
+    // if (body.givenBenefits) {
+    //     benefitsToBeGiven = body.givenBenefits;
+    //     delete body.givenBenefits;
+    // }
 
     if (body.client == '') {
         return res.status(404).json({
@@ -83,108 +83,108 @@ app.post('/in_data', [verifyToken], (req, res) => {
         });
     }
 
-    if (benefitsToBeGiven.length > 0) {
-        GivenBenefit.create(benefitsToBeGiven, (err, savedBenefits) => {
-            if (err) {
-                return res.status(500).json({
-                    err
-                });
-            }
+    // if (benefitsToBeGiven.length > 0) {
+    //     GivenBenefit.create(benefitsToBeGiven, (err, savedBenefits) => {
+    //         if (err) {
+    //             return res.status(500).json({
+    //                 err
+    //             });
+    //         }
 
-            let aux = [];
-            savedBenefits.forEach(element => {
-                aux.push(element._id);
+    //         let aux = [];
+    //         savedBenefits.forEach(element => {
+    //             aux.push(element._id);
+    //         });
+
+    //         body.givenBenefits = aux;
+    //         let dataset = new INData(body);
+
+    //         dataset.save({}, (err, inDB) => {
+    //             if (err) {
+    //                 res.status(500).json({
+    //                     err
+    //                 });
+    //             } else {
+    //                 if (taskCases.includes(inDB.reason)) {
+    //                     taskBody = {
+    //                         client: body.client,
+    //                         regional: body.regional,
+    //                         inData: inDB._id,
+    //                         todo: inDB.reason,
+    //                         creationAgent: body.user,
+    //                         registerDate: body.date,
+    //                         comment: body.comments
+    //                     }
+    //                     let generatedTask = new Task(taskBody);
+    //                     generatedTask.save((err, task) => {
+    //                         if (err) {
+    //                             return res.status(500).json({
+    //                                 err
+    //                             });
+    //                         }
+    //                         res.json({
+    //                             inData: inDB,
+    //                             task
+    //                         });
+    //                     });
+    //                 } else {
+    //                     res.json({
+    //                         inData: inDB
+    //                     });
+    //                 }
+    //             }
+    //         });
+    //     });
+    // } else {
+    let dataset = new INData(body);
+    dataset.save({}, (err, inDB) => {
+        if (err) {
+            res.status(500).json({
+                err
             });
-
-            body.givenBenefits = aux;
-            let dataset = new INData(body);
-
-            dataset.save({}, (err, inDB) => {
-                if (err) {
-                    res.status(500).json({
-                        err
-                    });
-                } else {
-                    if (taskCases.includes(inDB.reason)) {
-                        taskBody = {
-                            client: body.client,
-                            regional: body.regional,
-                            inData: inDB._id,
-                            todo: inDB.reason,
-                            creationAgent: body.user,
-                            registerDate: body.date,
-                            comment: body.comments
-                        }
-                        let generatedTask = new Task(taskBody);
-                        generatedTask.save((err, task) => {
-                            if (err) {
-                                return res.status(500).json({
-                                    err
-                                });
-                            }
-                            res.json({
-                                inData: inDB,
-                                task
-                            });
-                        });
-                    } else {
-                        res.json({
-                            inData: inDB
+        } else {
+            if (taskCases.includes(inDB.reason)) {
+                taskBody = {
+                    client: body.client,
+                    regional: body.regional,
+                    inData: inDB._id,
+                    todo: inDB.reason,
+                    creationAgent: body.user,
+                    registerDate: body.date,
+                    comment: body.comments
+                }
+                let generatedTask = new Task(taskBody);
+                generatedTask.save((err, task) => {
+                    if (err) {
+                        return res.status(500).json({
+                            err
                         });
                     }
-                }
-            });
-        });
-    } else {
-        let dataset = new INData(body);
-        dataset.save({}, (err, inDB) => {
-            if (err) {
-                res.status(500).json({
-                    err
+                    res.json({
+                        inData: inDB,
+                        task
+                    });
                 });
             } else {
-                if (taskCases.includes(inDB.reason)) {
-                    taskBody = {
-                        client: body.client,
-                        regional: body.regional,
-                        inData: inDB._id,
-                        todo: inDB.reason,
-                        creationAgent: body.user,
-                        registerDate: body.date,
-                        comment: body.comments
-                    }
-                    let generatedTask = new Task(taskBody);
-                    generatedTask.save((err, task) => {
-                        if (err) {
-                            return res.status(500).json({
-                                err
-                            });
-                        }
-                        res.json({
-                            inData: inDB,
-                            task
-                        });
-                    });
-                } else {
-                    res.json({
-                        inData: inDB
-                    });
-                }
+                res.json({
+                    inData: inDB
+                });
             }
-        });
-    }
+        }
+    });
+    // }
 });
 
 app.post('/out_data', verifyToken, (req, res) => {
-    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'result', 'nights', 'comments', 'competition', 'budget', 'estimateNights', 'date', 'givenBenefits']);
+    let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'result', 'nights', 'comments', 'competition', 'budget', 'estimateNights', 'restaurant', 'events', 'other', 'date', 'earlyCheckIn', 'lateCheckOut', 'upgrade', 'noShow']);
     let user = req.user;
     body.user = user._id;
 
-    let benefitsToBeGiven = [];
-    if (body.givenBenefits) {
-        benefitsToBeGiven = body.givenBenefits;
-        delete body.givenBenefits;
-    }
+    // let benefitsToBeGiven = [];
+    // if (body.givenBenefits) {
+    //     benefitsToBeGiven = body.givenBenefits;
+    //     delete body.givenBenefits;
+    // }
 
     if (body.client == '') {
         return res.status(404).json({
@@ -202,100 +202,100 @@ app.post('/out_data', verifyToken, (req, res) => {
         });
     }
 
-    if (benefitsToBeGiven.length > 0) {
-        GivenBenefit.create(benefitsToBeGiven, (err, savedBenefits) => {
-            if (err) {
-                return res.status(500).json({
-                    err
-                });
-            }
+    // if (benefitsToBeGiven.length > 0) {
+    //     GivenBenefit.create(benefitsToBeGiven, (err, savedBenefits) => {
+    //         if (err) {
+    //             return res.status(500).json({
+    //                 err
+    //             });
+    //         }
 
-            let aux = [];
-            savedBenefits.forEach(element => {
-                aux.push(element._id);
+    //         let aux = [];
+    //         savedBenefits.forEach(element => {
+    //             aux.push(element._id);
+    //         });
+
+    //         body.givenBenefits = aux;
+    //         let dataset = new OUTData(body);
+
+    //         dataset.save({}, (err, outDB) => {
+    //             if (err) {
+    //                 res.status(500).json({
+    //                     err
+    //                 });
+    //             } else {
+    //                 if (taskCases.includes(outDB.result)) {
+    //                     taskBody = {
+    //                         client: body.client,
+    //                         regional: body.regional,
+    //                         outData: outDB._id,
+    //                         todo: outDB.result,
+    //                         creationAgent: body.user,
+    //                         registerDate: body.date,
+    //                         comment: body.comments
+    //                     }
+    //                     let generatedTask = new Task(taskBody);
+
+    //                     generatedTask.save((err, task) => {
+    //                         if (err) {
+    //                             return res.status(500).json({
+    //                                 err
+    //                             });
+    //                         }
+
+    //                         res.json({
+    //                             outData: outDB,
+    //                             task
+    //                         });
+    //                     });
+    //                 } else {
+    //                     res.json({
+    //                         outData: outDB
+    //                     });
+    //                 }
+    //             }
+    //         });
+    //     });
+    // } else {
+    let dataset = new OUTData(body);
+    dataset.save({}, (err, outDB) => {
+        if (err) {
+            res.status(500).json({
+                err
             });
+        } else {
+            if (taskCases.includes(outDB.result)) {
+                taskBody = {
+                    client: body.client,
+                    regional: body.regional,
+                    outData: outDB._id,
+                    todo: outDB.result,
+                    creationAgent: body.user,
+                    registerDate: body.date,
+                    comment: body.comments
+                }
+                let generatedTask = new Task(taskBody);
 
-            body.givenBenefits = aux;
-            let dataset = new OUTData(body);
-
-            dataset.save({}, (err, outDB) => {
-                if (err) {
-                    res.status(500).json({
-                        err
-                    });
-                } else {
-                    if (taskCases.includes(outDB.result)) {
-                        taskBody = {
-                            client: body.client,
-                            regional: body.regional,
-                            outData: outDB._id,
-                            todo: outDB.result,
-                            creationAgent: body.user,
-                            registerDate: body.date,
-                            comment: body.comments
-                        }
-                        let generatedTask = new Task(taskBody);
-
-                        generatedTask.save((err, task) => {
-                            if (err) {
-                                return res.status(500).json({
-                                    err
-                                });
-                            }
-
-                            res.json({
-                                outData: outDB,
-                                task
-                            });
-                        });
-                    } else {
-                        res.json({
-                            outData: outDB
+                generatedTask.save((err, task) => {
+                    if (err) {
+                        return res.status(500).json({
+                            err
                         });
                     }
-                }
-            });
-        });
-    } else {
-        let dataset = new OUTData(body);
-        dataset.save({}, (err, outDB) => {
-            if (err) {
-                res.status(500).json({
-                    err
+
+                    res.json({
+                        outData: outDB,
+                        task
+                    });
                 });
             } else {
-                if (taskCases.includes(outDB.result)) {
-                    taskBody = {
-                        client: body.client,
-                        regional: body.regional,
-                        outData: outDB._id,
-                        todo: outDB.result,
-                        creationAgent: body.user,
-                        registerDate: body.date,
-                        comment: body.comments
-                    }
-                    let generatedTask = new Task(taskBody);
-
-                    generatedTask.save((err, task) => {
-                        if (err) {
-                            return res.status(500).json({
-                                err
-                            });
-                        }
-
-                        res.json({
-                            outData: outDB,
-                            task
-                        });
-                    });
-                } else {
-                    res.json({
-                        outData: outDB
-                    });
-                }
+                res.json({
+                    outData: outDB
+                });
             }
-        });
-    }
+        }
+    });
+    // }
 });
 
 

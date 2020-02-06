@@ -65,9 +65,41 @@ let OUTData = new Schema({
         type: Number,
         required: false
     },
-    givenBenefits: {
-        type: [mongoose.Types.ObjectId],
-        required: false
+    earlyCheckIn: {
+        type: Number,
+        required: [true, 'La cantidad de Early Check-In es necesaria'],
+        default: 0
+    },
+    lateCheckOut: {
+        type: Number,
+        required: [true, 'La cantidad de Late Check-Out es necesaria'],
+        default: 0
+    },
+    upgrade: {
+        type: Number,
+        required: [true, 'La cantidad de Upgrade es necesaria'],
+        default: 0
+    },
+    noShow: {
+        type: Number,
+        required: [true, 'La cantidad de Early No Show es necesaria'],
+        default: 0
+    },
+    // givenBenefits: {
+    //     type: [mongoose.Types.ObjectId],
+    //     required: false
+    // },
+    // ===============================================
+    // PdV
+    // ===============================================
+    restaurant: {
+        type: String
+    },
+    events: {
+        type: String
+    },
+    other: {
+        type: String
     },
     user: {
         type: mongoose.Types.ObjectId,
