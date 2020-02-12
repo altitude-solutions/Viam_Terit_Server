@@ -85,7 +85,7 @@ app.get('/contacts', verifyToken, (req, res) => {
         searchParams.status = Number(req.query.status) === 0 ? false : true;
     }
 
-    Contact.find(searchParams, 'name job phoneNumbers emailAddresses primary')
+    Contact.find(searchParams, 'name job phoneNumbers emailAddresses birthday primary')
         .skip(offset)
         .limit(limit)
         .exec((err, contacts) => {

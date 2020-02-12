@@ -60,7 +60,7 @@ app.get('/clients/:id', [verifyToken], (req, res) => {
         }, {
             populate: [{
                 path: 'contacts',
-                select: 'name job phoneNumbers emailAddresses primary',
+                select: 'name job phoneNumbers emailAddresses birthday primary',
                 model: Contact,
                 match: {
                     status: true
@@ -123,7 +123,7 @@ app.get('/clients', verifyToken, (req, res) => {
         }, {
             populate: [{
                 path: 'contacts',
-                select: 'name job phoneNumbers emailAddresses primary',
+                select: 'name job phoneNumbers emailAddresses birthday primary',
                 model: Contact,
                 match: {
                     status: true
@@ -296,7 +296,7 @@ app.post('/regional_clients', verifyToken, (req, res) => {
 app.get('/regional_clients/:id', verifyToken, (req, res) => {
     let id = req.params.id;
     RegionalClient.findById(id)
-        .populate('contacts', 'name job phoneNumbers emailAddresses primary', Contact, {
+        .populate('contacts', 'name job phoneNumbers emailAddresses birthday primary', Contact, {
             status: true
         })
         .populate('salesAgent', 'realName email', User, {
@@ -337,7 +337,7 @@ app.get('/regional_clients', verifyToken, (req, res) => {
     RegionalClient.find(where, 'city category contacts salesAgent anniversary')
         .skip(offset)
         .limit(limit)
-        .populate('contacts', 'name job phoneNumbers emailAddresses primary', Contact, {
+        .populate('contacts', 'name job phoneNumbers emailAddresses birthday primary', Contact, {
             status: true
         })
         .populate('salesAgent', 'realName email', User, {
