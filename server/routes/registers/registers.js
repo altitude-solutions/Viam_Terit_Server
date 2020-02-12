@@ -48,7 +48,7 @@ const errorMessages = {
 // ===============================================
 // Change this array to change which cases generate a task
 // ===============================================
-const taskCases = ['Tarifario', 'Cotizacion', 'Reserva'];
+const taskCases = ['Tarifario', 'Cotizacion', 'Reserva', 'PuntodeVenta'];
 
 app.post('/in_data', [verifyToken], (req, res) => {
     let body = _.pick(req.body, ['client', 'regional', 'contact', 'via', 'reason', 'nights', 'restaurant', 'events', 'other', 'comments', 'date', 'earlyCheckIn', 'lateCheckOut', 'upgrade', 'noShow']);
