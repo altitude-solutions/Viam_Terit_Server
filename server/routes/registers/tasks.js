@@ -181,7 +181,7 @@ app.put('/tasks/:id', verifyToken, (req, res) => {
     }
     let benefitsUpdate = {};
 
-    if (body.earlyCheckIn && body.lateCheckOut && body.upgrade && body.noShow) {
+    if (body.earlyCheckIn != undefined && body.lateCheckOut != undefined && body.upgrade != undefined && body.noShow!= undefined) {
         benefitsUpdate = {
             earlyCheckIn: body.earlyCheckIn,
             lateCheckOut: body.lateCheckOut,
