@@ -15,7 +15,6 @@
 const INData = require('../../models/InData');
 const OUTData = require('../../models/OutData');
 const Task = require('../../models/Tasks');
-const GivenBenefit = require('../../models/GivenBenefits');
 const Client = require('../../models/Clients');
 const RegionalClient = require('../../models/RegionalClient');
 const Contacts = require('../../models/Contacts');
@@ -181,14 +180,13 @@ app.post('/out_data', verifyToken, (req, res) => {
             }
         }
     });
-    // }
 });
 
 
 app.get('/not_tasks/:source', verifyToken, (req, res) => {
     let source = req.params.source;
     let from = Number(req.query.from) || 0;
-    let limit = Number(req.query.to) || 100;
+    let limit = Number(req.query.to) || 1000;
 
     if (source == '' || source == undefined) {
         return res.status(400).json({
@@ -303,6 +301,52 @@ app.get('/not_tasks/:source', verifyToken, (req, res) => {
             }
         }
     }
+});
+
+app.get('/dashboard', verifyToken, (req,  res) => {
+    Users.find((err, users) => {
+        if(err) {
+            return res.status(500).json({
+                err
+            });
+        }
+        INData.find((err, inData) => {
+            if(err) {
+                return res.status(500).json({
+                    err
+                });
+            }
+            OUTData.find((err,  tasks) => {
+                if(err) {
+                    return res.status(500).json({
+                        err
+                    });
+
+                }
+                Client.find((err, clients) => {
+                    RegionalClient.find((err, regionals) => {
+                        Contacts.find((err, contacts) => {
+                            Categories.find((err, categories) => {
+                                Cities.find((err, cities) => {
+                                    res.json({
+                                        users,
+                                        inData,
+                                        outData,
+                                        tasks,
+                                        clients,
+                                        regionals,
+                                        contacts,
+                                        categories,
+                                        cities
+                                    });
+                                });
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
 });
 
 module.exports = app;
