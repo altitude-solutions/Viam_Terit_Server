@@ -316,7 +316,7 @@ app.get('/dashboard', verifyToken, (req,  res) => {
                     err
                 });
             }
-            OUTData.find((err,  tasks) => {
+            OUTData.find((err,  outData) => {
                 if(err) {
                     return res.status(500).json({
                         err
@@ -328,16 +328,18 @@ app.get('/dashboard', verifyToken, (req,  res) => {
                         Contacts.find((err, contacts) => {
                             Categories.find((err, categories) => {
                                 Cities.find((err, cities) => {
-                                    res.json({
-                                        users,
-                                        inData,
-                                        outData,
-                                        tasks,
-                                        clients,
-                                        regionals,
-                                        contacts,
-                                        categories,
-                                        cities
+                                    Task.find((err, tasks) => {
+                                        res.json({
+                                            users,
+                                            inData,
+                                            outData,
+                                            tasks,
+                                            clients,
+                                            regionals,
+                                            contacts,
+                                            categories,
+                                            cities
+                                        });
                                     });
                                 });
                             });
