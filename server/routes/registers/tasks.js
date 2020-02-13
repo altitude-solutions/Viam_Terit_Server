@@ -112,7 +112,7 @@ app.get('/tasks', verifyToken, (req, res) => {
         where.creationAgent = String(req.query.agent);
     }
 
-    // Reserva filtering to fetch all tasks that containg givenBenefits
+    // Filter "Reserva"  to fetch tasks that come from "Reservas"
     if (req.query.todo) {
         where.todo = String(req.query.todo);
     }

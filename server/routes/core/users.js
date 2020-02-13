@@ -81,7 +81,12 @@ app.get('/users', [verifyToken], (req, res) => {
     let offset = Number(req.query.from) || 0;
     let limit = Number(req.query.to) || 100;
 
-    let searchParams = {};
+    // exclude  dashboard
+    let searchParams = {
+        userName: {
+            $ne: 'dashboard'
+        }
+    };
 
     if (req.query.status) {
         searchParams.status = Number(req.query.status) == 0 ? false : true;
