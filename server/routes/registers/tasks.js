@@ -139,9 +139,6 @@ app.get('/tasks', verifyToken, (req, res) => {
             }, {
                 path: 'category',
                 model: Category
-            }, {
-                path: 'salesAgent',
-                model: User
             }]
         })
         .populate('creationAgent', 'realName', User)
