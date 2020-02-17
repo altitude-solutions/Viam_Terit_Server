@@ -132,13 +132,16 @@ app.get('/tasks', verifyToken, (req, res) => {
             ['registerDate', -1]
         ])
         .populate('client', 'name', Client)
-        .populate('regional', 'city category', RegionalClient, regionalFilter, {
+        .populate('regional', 'city category salesAgent', RegionalClient, regionalFilter, {
             populate: [{
                 path: 'city',
                 model: City
             }, {
                 path: 'category',
                 model: Category
+            }, {
+                path: 'salesAgent',
+                model: User
             }]
         })
         .populate('creationAgent', 'realName', User)
