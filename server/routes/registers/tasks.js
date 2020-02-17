@@ -97,12 +97,12 @@ app.get('/tasks', verifyToken, (req, res) => {
     let limit = Number(req.query.to) || 1000;
     let where = {};
     if (req.query.completed) {
-        let completed = Number(req.query.completed)
-        where.completed = completed
+        let completed = Number(req.query.completed);
+        where.completed = completed;
     }
     if (req.query.deleted) {
-        let deleted = Number(req.query.deleted)
-        where.deleted = deleted
+        let deleted = Number(req.query.deleted);
+        where.deleted = deleted;
     }
     if (req.query.client) {
         where.client = String(req.query.client);
