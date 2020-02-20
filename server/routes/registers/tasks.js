@@ -166,7 +166,7 @@ app.get('/tasks', verifyToken, (req, res) => {
 
 app.put('/tasks/:id', verifyToken, (req, res) => {
     let id = req.params.id;
-    let body = _.pick(req.body, ['todo', 'creationAgent', 'registerDate', 'completed', 'deleted', 'comment', 'doneDate', 'earlyCheckIn', 'lateCheckOut', 'upgrade', 'noShow']);
+    let body = _.pick(req.body, ['todo', 'creationAgent', 'registerDate', 'completed', 'deleted', 'comment', 'doneDate', 'earlyCheckIn', 'lateCheckOut', 'upgrade', 'noShow', 'nights']);
     if (body.completed != undefined) {
         if (body.doneDate != undefined) {
             let user = req.user;
@@ -181,18 +181,29 @@ app.put('/tasks/:id', verifyToken, (req, res) => {
     }
     let benefitsUpdate = {};
 
-    if (body.earlyCheckIn != undefined && body.lateCheckOut != undefined && body.upgrade != undefined && body.noShow!= undefined) {
-        benefitsUpdate = {
-            earlyCheckIn: body.earlyCheckIn,
-            lateCheckOut: body.lateCheckOut,
-            upgrade: body.upgrade,
-            noShow: body.noShow
-        };
-
-        delete body.earlyCheckIn;
-        delete body.lateCheckOut;
-        delete body.upgrade;
+    if (body.noShow != undefined) {
+        benefitsUpdate.noShow = body.noShow;
         delete body.noShow;
+    }
+
+    if (body.earlyCheckIn != undefined) {
+        benefitsUpdate.earlyCheckIn = body.earlyCheckIn;
+        delete body.earlyCheckIn;
+    }
+
+    if (body.lateCheckOut != undefined) {
+        benefitsUpdate.lateCheckOut = body.lateCheckOut;
+        delete body.lateCheckOut;
+    }
+
+    if (body.upgrade != undefined) {
+        benefitsUpdate.upgrade = body.upgrade;
+        delete body.upgrade;
+    }
+
+    if (body.nights != undefined) {
+        benefitsUpdate.nights = body.nights;
+        delete body.nights;
     }
 
     Task.findByIdAndUpdate(id, body, { new: true, runValidators: true, context: 'query' }, (err, updated) => {
