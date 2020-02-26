@@ -155,7 +155,7 @@ app.get('/tasks', verifyToken, (req, res) => {
             tasks = tasks.filter(task => {
                 return task.regional != null;
             });
-            Task.estimatedDocumentCount((err, count) => {
+            Task.countDocuments(where, (err, count) => {
                 res.json({
                     tasks,
                     count
