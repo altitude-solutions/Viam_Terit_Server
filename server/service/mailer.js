@@ -26,8 +26,8 @@ const schedule = require('node-schedule');
 let timeZoneOffset = process.env.TIME_ZONE_OFFSET || 0;
 
 // run every monday 
-// let j = schedule.scheduleJob('* * * * * 1', function () {
-let j = schedule.scheduleJob('0 * * * * *', function () {
+let j = schedule.scheduleJob('* * * * * 1', function () {
+// let j = schedule.scheduleJob('0 * * * * *', function () {
     let today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), -timeZoneOffset, 0, 0, 0).getTime();
     let oneWeeksMore = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 7, -timeZoneOffset, 0, 0, 0).getTime();
     let twoWeeksMore = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 14, -timeZoneOffset, 0, 0, 0).getTime();
