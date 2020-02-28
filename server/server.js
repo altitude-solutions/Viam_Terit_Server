@@ -43,6 +43,11 @@ server.listen(process.env.PORT, () => {
     console.log(`Listening PORT\t\t\t${process.env.PORT}`);
 });
 
+// ============================
+// Mail service
+// ============================
+require('./service/mailer');
+
 process.on('SIGINT', function() {
     process.exit();
 });
