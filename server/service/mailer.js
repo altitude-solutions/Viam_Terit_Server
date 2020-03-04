@@ -37,7 +37,7 @@ let timeZoneOffset = process.env.TIME_ZONE_OFFSET || 0;
 // └───────────────────────── second (0 - 59, OPTIONAL)
 
 // run every monday at 12(-4) = 8
-let j = schedule.scheduleJob('0 0 12 * * 3', function () {
+let j = schedule.scheduleJob('0 0 12 * * 1', function () {
     let today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), -timeZoneOffset, 0, 0, 0).getTime();
     let oneWeeksMore = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 7, -timeZoneOffset, 0, 0, 0).getTime();
     let twoWeeksMore = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 14, -timeZoneOffset, 0, 0, 0).getTime();
@@ -182,11 +182,7 @@ let j = schedule.scheduleJob('0 0 12 * * 3', function () {
                                                 "Email": "camino.real.clients.app@gmail.com",
                                                 "Name": "Camino Real"
                                             },
-                                            "To": [{
-                                                "Email": "javier.contreras@altitudesolutions.org",
-                                                "Name": "TESTING"
-                                            }],
-                                            // "To": targets,
+                                            "To": targets,
                                             "Subject": "Cumpleaños y aniversarios",
                                             "TextPart": '',
                                             "HTMLPart": mailBody,
